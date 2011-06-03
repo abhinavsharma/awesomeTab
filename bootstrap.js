@@ -162,6 +162,7 @@ function shiftBrowser(window) {
       let tab = orig.apply(this, arguments);
       if (url == "about:blank") {
         let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
+        gBrowser.getBrowserForTab(tab).loadURI("http://www.google.com", null, null);
         // this is deliberate
         var num = gBrowser.browsers.length;
         for (var i = 0; i < num; i++) {
