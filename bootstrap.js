@@ -160,8 +160,19 @@ function shiftBrowser(window) {
   change(window.gBrowser, "loadOneTab", function(orig) {
     return function(url) {
       let tab = orig.apply(this, arguments);
-      if (url == "about:blank")
-        Cu.reportError("got new blank tab: " + tab.linkedPanel);
+      if (url == "about:blank") {
+        let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
+        // this is deliberate
+        var num = gBrowser.browsers.length;
+        for (var i = 0; i < num; i++) {
+          var b = gBrowser.getBrowserAtIndex(i);
+          try {
+            Cu.reportError(b.currentURI.spec); // dump URLs of all open tabs to console
+          } catch(e) {
+            Components.utils.reportError(e);
+          }
+        }
+      }
       return tab;
     };
   });
