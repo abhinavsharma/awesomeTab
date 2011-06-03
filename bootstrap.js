@@ -169,7 +169,9 @@ function shiftBrowser(window) {
       if (url == "about:blank") {
         let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
         let fileURI = global.aboutURI.resolve('');
-        gBrowser.getBrowserForTab(tab).loadURI(fileURI, null, null);
+        let tBrowser = gBrowser.getBrowserForTab(tab)
+        tBrowser.loadURI(fileURI, null, null);
+
         // this is deliberate
         
         let num = gBrowser.browsers.length;

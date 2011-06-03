@@ -1,29 +1,89 @@
+<!DOCTYPE html>
 <html>
 <head>
-  <title></title>
-  <!-- Deliberately blank -->
-  <link rel="stylesheet" type="text/css" href="css/reset.css" />
-  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <title>Mozilla F1: Configuration</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+  <link rel="image_src" href="http://f1.mozillamessaging.com/i/f1LogoVert.png"/>
+
+  <script data-main="/0.3.7/settings/index.js" src="/0.3.7/scripts/requireplugins-jquery.js" charset="utf-8"></script>
 </head>
 <body>
-  <div id="page-wrap">
-    <table>
-    <tr class="table-row">
-      <td class="left-col">Similar Bookmarks</td>
-      <td class="right-col">
-        <span class="content"><img src="img/snap.jpg" /></span>
-        <span class="content"><img src="img/snap.jpg" /></span>
 
-      </td>
-    </tr>
-    <tr class="table-row">
-      <td class="left-col">Browsed Together</td>
-      
-      <td class="right-col">
-        <span class="content"><img src="img/snap.jpg" /></span>
-      </td>
-    </tr>
-    </table>
+<div id="wrapper">
+
+  <div id="header" class="row">
+
+    <div class="c2 logo">
+    </div>
+    <div class="c1">
+      <h1>New Tab</h1>
+    </div>
   </div>
+
+  <ul id="tabs" class="clearfix">
+    <li class="manage selected" data-tab="manage">browse</li>
+  </ul>
+
+  <div id="config">
+    <div id="manage" class="panel">
+      <h1>Similar Bookmarks</h1>
+      <ul id="similar-bookmarks">
+        <li class="hbox">
+          <div class="accountType overflow boxFlex">
+          <span class="icon"></span>
+          Google
+          <span class="username">http://www.google.com</span>
+          </div>
+        </li>
+        <li class="hbox">
+          <div class="accountType overflow boxFlex">
+          <span class="icon"></span>
+          Google
+          <span class="username">http://www.google.com</span>
+          </div>
+        </li>
+      </ul>
+      
+      <h1>Browsed Together</h1>
+      <ul id="similar-bookmarks">
+        <li class="hbox">
+          <div class="accountType overflow boxFlex">
+          <span class="icon"></span>
+          Google
+          <span class="username">http://www.google.com</span>
+          </div>
+        </li>
+        <li class="hbox">
+          <div class="accountType overflow boxFlex">
+          <span class="icon"></span>
+          Bing
+          <span class="username">http://www.bing.com</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="done" class="panel hbox">
+    <div class="boxFlex"></div>
+
+    <button class="close done">done</button>
+  </div>
+
+  <div id="newsFooter" class="panel">
+    <div class="hbox">
+      <div class="boxFlex headline invisible"><span class="icon rss"></span> <a id="rssLink" href="#" target="_blank"></a></div>
+      <div class="privacy">
+
+        Brought to you by <a href="http://mozillalabs.com">Mozilla Labs</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
 </body>
 </html>
