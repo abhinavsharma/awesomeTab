@@ -151,20 +151,20 @@ function unload(callback, container) {
  * Shift the window's main browser content down and right a bit
  */
 function shiftBrowser(window) {
-  let style = window.gBrowser.style;
-
-  // Save the original margin values to restore them later
-  let origTop = style.marginTop;
-  let origLeft = style.marginLeft;
-
-  // Push the main browser down and right
-  style.marginTop = style.marginLeft = "50px";
-
-  // Restore the original position when the add-on is unloaded
-  unload(function() {
-    style.marginTop = origTop;
-    style.marginLeft = origLeft;
-  }, window);
+  function change(obj, prop, val) {
+      let orig = obj[prop];
+      obj[prop] = typeof val == "function" ? val(orig) : val;
+      unload(function() obj[prop] = orig, window);
+    }
+    
+  change(window.gBrowser, "loadOneTab", function(orig) {
+    return function(url) {
+      let tab = orig.apply(this, arguments);
+      if (url == "about:blank")
+        Cu.reportError("got new blank tab: " + tab.linkedPanel);
+      return tab;
+    };
+  });
 }
 
 /**
