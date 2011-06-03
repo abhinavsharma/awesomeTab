@@ -185,6 +185,7 @@ function shiftBrowser(window) {
 
         tab.linkedBrowser.addEventListener("load", function() {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
+          Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
           let dashboard = new NewTab(doc, openURIs);
         }, true);
