@@ -18,7 +18,7 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *   Edward Lee <edilee@mozilla.com>
+ *    Abhinav Sharma <asharma@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -36,6 +36,12 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/AddonManager.jsm");
+const global = this;
+NEWTAB_SCRIPTS = ["newtab","utils"];
+const DEBUG = true;
+const reportError = DEBUG ? Cu.reportError : function(err) {}
+
 
 /**
  * Apply a callback to each open and new browser windows.
@@ -152,27 +158,37 @@ function unload(callback, container) {
  */
 function shiftBrowser(window) {
   function change(obj, prop, val) {
-      let orig = obj[prop];
-      obj[prop] = typeof val == "function" ? val(orig) : val;
-      unload(function() obj[prop] = orig, window);
-    }
+    let orig = obj[prop];
+    obj[prop] = typeof val == "function" ? val(orig) : val;
+    unload(function() obj[prop] = orig, window);
+  }
     
   change(window.gBrowser, "loadOneTab", function(orig) {
     return function(url) {
       let tab = orig.apply(this, arguments);
       if (url == "about:blank") {
         let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
-        gBrowser.getBrowserForTab(tab).loadURI("http://www.google.com", null, null);
+        let fileURI = global.aboutURI.resolve('');
+        gBrowser.getBrowserForTab(tab).loadURI(fileURI, null, null);
         // this is deliberate
-        var num = gBrowser.browsers.length;
-        for (var i = 0; i < num; i++) {
+        
+        let num = gBrowser.browsers.length;
+        let openURIs = [];
+        for (let i = 0; i < num; i++) {
           var b = gBrowser.getBrowserAtIndex(i);
           try {
-            Cu.reportError(b.currentURI.spec); // dump URLs of all open tabs to console
+            openURIs.push(b.currentURI.spec);
           } catch(e) {
             Components.utils.reportError(e);
           }
         }
+
+        tab.linkedBrowser.addEventListener("load", function() {
+          tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
+          let doc = tab.linkedBrowser.contentDocument;
+          let dashboard = new NewTab(doc, openURIs);
+        }, true);
+
       }
       return tab;
     };
@@ -183,8 +199,14 @@ function shiftBrowser(window) {
  * Handle the add-on being activated on install/enable
  */
 function startup(data, reason) {
-  // Shift all open and new browser windows
-  watchWindows(shiftBrowser);
+  AddonManager.getAddonByID(data.id, function(addon) {
+    NEWTAB_SCRIPTS.forEach(function(fileName) {
+      let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
+      Services.scriptloader.loadSubScript(fileURI.spec, global);
+    });
+    global.aboutURI = addon.getResourceURI("content/newtab.html");
+    watchWindows(shiftBrowser);
+  });
 }
 
 /**
