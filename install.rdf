@@ -6,7 +6,7 @@
     <description>Better information on new tabs.</description>
     <homepageURL>http://newtab.abhinavsharma.me/</homepageURL>
     <id>newtab@abhinavsharma.me</id>
-    <name>Newtab Plus Plus</name>
+    <name>AwesomeTab</name>
     <version>0.1</version>
 
     <bootstrap>true</bootstrap>

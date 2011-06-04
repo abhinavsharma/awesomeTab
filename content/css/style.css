@@ -556,3 +556,11 @@ html[xmlns] .clearfix {
 }
 
 }
+
+#similar-bookmarks-container {
+  display:none;
+}
+
+#browsed-together-container {
+  display:none;
+}

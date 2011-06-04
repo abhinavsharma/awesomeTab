@@ -1,27 +1,73 @@
 function NewTab(doc, openURIs) {
   let me = this;
-  me.MINUTE_CUTOFF = 60;
+  me.MINUTE_CUTOFF = 10;
   me.openURIs = openURIs;
-  me.builder = new NewtabBuilder(me.doc);
+  me.builder = new NewtabBuilder(doc);
   me.utils = new NewtabUtils();
   me.setupNewtab();
-
 }
 
 NewTab.prototype.setupNewtab = function() {
   let me =this;
   let currentPlaces = me.getVisiblePlaces();
+  /*
   let visitsMap = me.constructVisitsMap(currentPlaces);
   let nearPlacesMap = me.constructNearPlacesMap(visitsMap);
   let countMap = me.constructCountMap(nearPlacesMap);
   let sorted = me.sortCountMap(countMap);
+  me.builder.enableBrowsedTogether();
+  sorted.forEach(function(s) {
+    me.builder.addToList("together", s[0], null);
+  });
   Cu.reportError(JSON.stringify(sorted));
+  */
+  let tagMap = me.buildTagMap(currentPlaces);
+
+  me.showSimilarBookmarks(tagMap);
+
 };
 
+function removeDuplicates(things) {
+  var arr = {};
+  for (let i = 0; i < things.length; i++) {
+    arr[things[i]] = 1;
+  }
+  things = [];
+  for (let k in arr) {
+    things.push(k);
+  }
+  return things;
+}
+
+NewTab.prototype.showSimilarBookmarks = function(tagMap) {
+  let me = this;
+  let simpleTagMap = {};
+  let places = [];
+  for (let placeId in tagMap) {
+    let matches = removeDuplicates(tagMap[placeId]).length;
+    places.push([placeId, matches]);
+  }
+
+  if (places.length > 0) {
+    me.builder.enableSimilarBookmarks();
+  }
+
+  places.sort(function (a,b) {
+    return b[1] - a[1];
+  }).forEach(function(p) {
+    me.builder.addToList("similar", p[0]);
+  });
+
+
+}
+
 NewTab.prototype.sortCountMap = function(countMap) {
+  let me = this;
   let countArr = [];
   for (let k in countMap) {
-    countArr.push([k, countMap[k]])
+    // normalization
+    let visitCount = me.utils.getData(["visit_count"], {"id" : k}, "moz_places")[0]["visit_count"];
+    countArr.push([k, (visitCount == 0) ? 0 : countMap[k]/visitCount])
   }
   return countArr.sort(function(a, b) {
     return b[1] - a[1];
@@ -30,6 +76,7 @@ NewTab.prototype.sortCountMap = function(countMap) {
 
 /* naive method #1 */
 NewTab.prototype.constructCountMap = function(nearPlacesMap) {
+  let me = this;
   let countMap = {};
   for (let placeId in nearPlacesMap) {
     for (let simPlace in nearPlacesMap[placeId]) {
@@ -115,7 +162,7 @@ NewTab.prototype.getVisiblePlaces = function() {
   let places = {};
   visibleTabs.forEach(function(tab) {
     let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
-    reportError(uri);
+    // reportError(uri);
     me.utils.getData(["id"], {"url": uri}, "moz_places").forEach(function(p) {
       if (p["id"] in places) {
         places[p["id"]] += 1;
@@ -127,10 +174,131 @@ NewTab.prototype.getVisiblePlaces = function() {
   return places;
 }
 
+NewTab.prototype.getTagsFromPlace = function(placeId) {
+  let me = this;
+  function getPlaceInfo(pid) {
+    let result = me.utils.getData(["url", "title"],{"id": pid},"moz_places");
+    return result.length > 0 ? {"url": result[0]["url"], "title":result[0]["title"]} : null;
+  }
+  let placeInfo = getPlaceInfo(placeId);
+  if (!placeInfo || !placeInfo["title"] || !placeInfo["url"])
+    return;
 
+  let taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
+                   .getService(Ci.nsITaggingService);
+  let uri = Cc["@mozilla.org/network/io-service;1"]
+            .getService(Ci.nsIIOService)
+            .newURI(placeInfo["url"], null, null);
+  let tags = taggingSvc.getTagsForURI(uri);
+  if (!tags || tags.length == 0) {
+    return null;
+  }
+  return tags;
+}
+
+NewTab.prototype.getPlacesFromTag = function(tag) {
+  let me = this;
+  let taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
+                   .getService(Ci.nsITaggingService);
+  let uris = taggingSvc.getURIsForTag(tag);
+  let places = [];
+  uris.forEach(function(uri) {
+    let placeData = me.utils.getData(["id"], {"url":uri.spec}, "moz_places");
+    if (!placeData || placeData.length == 0) return;
+    reportError("getting place id");
+    let placeId = placeData[0]["id"];
+    places.push(placeId);
+  });
+  reportError("places for tag " + tag + " are " + JSON.stringify(places));
+  return places;
+}
+
+NewTab.prototype.buildTagMap = function(placeMap) {
+  let me = this;
+  let placeTagMap = {};
+  for (let placeId in placeMap) {
+    reportError("checking if " + placeId + " is a bookmark");
+    if (me.utils.isBookmarked(placeId)) {
+      reportError(placeId + " is bookmarked");
+      let tags = me.getTagsFromPlace(placeId);
+      reportError("tags for " + placeId + " are " + JSON.stringify(tags));
+      if (!tags) continue;
+      tags.forEach(function(tag) {
+        reportError("checking for other places with tag" + tag);
+        me.getPlacesFromTag(tag).forEach(function(p) {
+          if (!(p in placeMap)) {
+            if (p in placeTagMap) {
+              placeTagMap[p].push(tag)
+            } else {
+              placeTagMap[p] = [tag];
+            }
+          }
+        });
+      });
+      
+    }
+    // placeTagMap is ready
+    // fail
+  }
+  reportError(JSON.stringify(placeTagMap));
+  return placeTagMap;
+};
 
 function NewtabBuilder(doc) {
   let me = this;
+  me.utils = new NewtabUtils();
   me.doc = doc;
 };
+
+NewtabBuilder.prototype.enableSimilarBookmarks = function() {
+  let me = this;
+  me.doc.getElementById('similar-bookmarks-container').style.display = 'block';
+}
+
+NewtabBuilder.prototype.enableBrowsedTogether = function() {
+  let me = this;
+  me.doc.getElementById('browsed-together-container').style.display = 'block';
+}
+
+NewtabBuilder.prototype.addToList = function(list, placeId, extra) {
+  let me = this;
+  function getPlaceInfo(pid) {
+    let result = me.utils.getData(["url", "title"],{"id": pid},"moz_places");
+    return result.length > 0 ? {"url": result[0]["url"], "title":result[0]["title"]} : null;
+  }
+
+  let placeInfo = getPlaceInfo(placeId);
+  if (!placeInfo) {
+    return;
+  }
+
+  let listElem = null;
+  if (list == "similar") {
+    listElem = me.doc.getElementById('similar-bookmarks');
+  } else if (list == "together") {
+    listElem = me.doc.getElementById('browsed-together');
+  } else {
+    return;
+  }
+
+  let li = me.doc.createElement('li');
+  li.setAttribute('class', 'hbox');
+  let div = me.doc.createElement('div');
+  div.setAttribute('class', 'accountType overflow boxFlex');
+
+  let span1 = me.doc.createElement('span');
+  span1.setAttribute('class', 'icon');
+  let span2 = me.doc.createElement('span')
+  span2.innerHTML = placeInfo["title"] ? placeInfo["title"].slice(0,50) : "";
+  let span3 = me.doc.createElement('span');
+  span3.setAttribute('class', 'username');
+  span3.innerHTML = placeInfo["url"].slice(0,50);
+
+  div.appendChild(span1);
+  div.appendChild(span2);
+  div.appendChild(span3);
+  li.appendChild(div);
+  listElem.appendChild(li);
+  
+}
 
