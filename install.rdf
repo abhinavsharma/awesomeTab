@@ -4,8 +4,8 @@
   <r:Description about="urn:mozilla:install-manifest">
     <creator>Abhinav Sharma</creator>
     <description>Better information on new tabs.</description>
-    <homepageURL>http://newtab.abhinavsharma.me/</homepageURL>
-    <id>newtab@abhinavsharma.me</id>
+    <homepageURL>http://awesometab.abhinavsharma.me/</homepageURL>
+    <id>awesometab@abhinavsharma.me</id>
     <name>AwesomeTab</name>
     <version>0.1</version>
 

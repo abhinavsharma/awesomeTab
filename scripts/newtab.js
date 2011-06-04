@@ -216,6 +216,8 @@ NewTab.prototype.getPlacesFromTag = function(tag) {
 NewTab.prototype.buildTagMap = function(placeMap) {
   let me = this;
   let placeTagMap = {};
+  let altTagMap = {};
+  let usePlaceTagMap = false;
   for (let placeId in placeMap) {
     reportError("checking if " + placeId + " is a bookmark");
     if (me.utils.isBookmarked(placeId)) {
@@ -230,6 +232,7 @@ NewTab.prototype.buildTagMap = function(placeMap) {
             if (p in placeTagMap) {
               placeTagMap[p].push(tag)
             } else {
+              usePlaceTagMap = true;
               placeTagMap[p] = [tag];
             }
           }
@@ -237,11 +240,33 @@ NewTab.prototype.buildTagMap = function(placeMap) {
       });
       
     }
-    // placeTagMap is ready
-    // fail
+
+    function getTitleTags(placeId) {
+      let placeData = me.utils.getData(["title"], {"id":placeId}, "moz_places");
+      if (!placeData || placeData.length == 0 || !placeData[0].title) {
+        return [];
+      }
+      return placeData[0]["title"].toLowerCase().split(/[\s-\_|]/).filter(function (w) {return w.match(/[a-z]/)})
+
+    }
+    for (let placeId in placeMap) {
+      getTitleTags(placeId).forEach(function(tag) {
+        me.getPlacesFromTag(tag).forEach(function(p) {
+          if (!(p in placeMap)) {
+            if (p in altTagMap) {
+              altTagMap[p].push(tag);
+            } else {
+              altTagMap[p] = [tag];
+            }
+          }
+        });
+      });
+    }
+      
   }
   reportError(JSON.stringify(placeTagMap));
-  return placeTagMap;
+  reportError(JSON.stringify(altTagMap));
+  return usePlaceTagMap ? placeTagMap : altTagMap;
 };
 
 function NewtabBuilder(doc) {
