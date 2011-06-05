@@ -35,11 +35,14 @@
  * ***** END LICENSE BLOCK ***** */
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
+
+/* imports */
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+AWESOMETAB_SCRIPTS = ["awesome","utils"];
+
 const global = this;
-NEWTAB_SCRIPTS = ["newtab","utils"];
 const DEBUG = true;
 const reportError = DEBUG ? Cu.reportError : function(err) {}
 
@@ -157,7 +160,7 @@ function unload(callback, container) {
 /**
  * Shift the window's main browser content down and right a bit
  */
-function shiftBrowser(window) {
+function setupListener(window) {
   function change(obj, prop, val) {
     let orig = obj[prop];
     obj[prop] = typeof val == "function" ? val(orig) : val;
@@ -190,7 +193,7 @@ function shiftBrowser(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new NewTab(doc, openURIs);
+          let dashboard = new AwesomeTab(doc, openURIs);
         }, true);
 
       }
@@ -204,12 +207,13 @@ function shiftBrowser(window) {
  */
 function startup(data, reason) {
   AddonManager.getAddonByID(data.id, function(addon) {
-    NEWTAB_SCRIPTS.forEach(function(fileName) {
+    /* import scripts */
+    AWESOMETAB_SCRIPTS.forEach(function(fileName) {
       let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
       Services.scriptloader.loadSubScript(fileURI.spec, global);
     });
     global.aboutURI = addon.getResourceURI("content/newtab.html");
-    watchWindows(shiftBrowser);
+    watchWindows(setupListener);
   });
 }
 

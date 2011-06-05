@@ -1,30 +1,30 @@
-NewtabUtils = function() {
+AwesomeTabUtils = function() {
   let me = this;
   reportError("koala utils init");
   Cu.import("resource://services-sync/util.js");
 };
 
-NewtabUtils.prototype.getCurrentWindow = function() {
+AwesomeTabUtils.prototype.getCurrentWindow = function() {
   let me = this;
   let chromeWin = Services.wm.getMostRecentWindow("navigator:browser");
   let win = chromeWin.gBrowser.selectedBrowser.contentWindow;
   return win;
 };
 
-NewtabUtils.prototype.getCurrentURL = function() {
+AwesomeTabUtils.prototype.getCurrentURL = function() {
   return this.getCurrentWindow().location.href;
 };
 
-NewtabUtils.prototype.getCurrentPlace = function() {
+AwesomeTabUtils.prototype.getCurrentPlace = function() {
   return me.getData(["id"],{"url":me.getCurrentURL()},"moz_places")[0]["id"];
 }
 
-NewtabUtils.prototype.isBookmarked = function(placeId) {
+AwesomeTabUtils.prototype.isBookmarked = function(placeId) {
   let me = this;
   return (me.getData(["id"],{"fk":placeId},"moz_bookmarks").length > 0);
 };
 
-NewtabUtils.prototype.getPlaceIdFromURL = function(url) {
+AwesomeTabUtils.prototype.getPlaceIdFromURL = function(url) {
   let me = this;
   let result = this.getData(["id"], {"url" : url}, "moz_places");
   if (result.length == 0) {
@@ -34,7 +34,7 @@ NewtabUtils.prototype.getPlaceIdFromURL = function(url) {
   }
 };
 
-NewtabUtils.prototype.getDataQuery = function(query, params, select) {
+AwesomeTabUtils.prototype.getDataQuery = function(query, params, select) {
   let stm = Svc.History.DBConnection.createAsyncStatement(query);
   reportError(query);
   reportError(JSON.stringify(params));
@@ -49,7 +49,7 @@ NewtabUtils.prototype.getDataQuery = function(query, params, select) {
   return result;
 }
 
-NewtabUtils.prototype.getData = function(fields, conditions, table) {
+AwesomeTabUtils.prototype.getData = function(fields, conditions, table) {
   let me = this;
   let queryString = "SELECT ";
   queryString += fields.join(',') + ' FROM ' + table + ' WHERE ';
@@ -75,7 +75,7 @@ NewtabUtils.prototype.getData = function(fields, conditions, table) {
   return ret;
 };
 
-NewtabUtils.prototype.updateData = function(id, data, table) {
+AwesomeTabUtils.prototype.updateData = function(id, data, table) {
   let queryString = "UPDATE " + table + " SET ";
   for ([k, v] in Iterator(data)) {
     queryString += k + " = :" + k + "_v ";
@@ -90,7 +90,7 @@ NewtabUtils.prototype.updateData = function(id, data, table) {
   Utils.queryAsync(stm, []);
 };
 
-NewtabUtils.prototype.insertData = function(data, table) {
+AwesomeTabUtils.prototype.insertData = function(data, table) {
   let flatData = [];
   for ([k,v] in Iterator(data)) {
     flatData.push(k);
@@ -109,14 +109,14 @@ NewtabUtils.prototype.insertData = function(data, table) {
   Utils.queryAsync(stm, []);
 };
 
-NewtabUtils.prototype.isValidURL = function(url) {
+AwesomeTabUtils.prototype.isValidURL = function(url) {
   if (url && url.indexOf("http") > -1) {
     return true;
   }
   return false;
 };
 
-NewtabUtils.prototype.getCurrentTime = function(precision) {
+AwesomeTabUtils.prototype.getCurrentTime = function(precision) {
   let time = new Date().getTime();
   if (!precision)
     precision = "o";
