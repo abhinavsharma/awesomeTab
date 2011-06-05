@@ -313,13 +313,25 @@ NewtabBuilder.prototype.addToList = function(list, placeId, extra) {
 
   let span1 = me.doc.createElement('span');
   span1.setAttribute('class', 'icon');
+  
+  let img = me.doc.createElement('img');
+  img.style.height = '16px';
+  img.style.width = '16px';
+  img.style.paddingRight = '4px';
+  img.src = PlacesUtils.favicons.getFaviconImageForPage(Utils.makeURI(placeInfo["url"])).spec;
+  
+
   let span2 = me.doc.createElement('span')
-  span2.innerHTML = placeInfo["title"] ? placeInfo["title"].slice(0,50) : "";
+  let a = me.doc.createElement('a');
+  a.setAttribute('href', placeInfo["url"].slice(0,50));
+  a.innerHTML = placeInfo["title"] ? placeInfo["title"].slice(0,50) : "";
+  span2.appendChild(a);
+
   let span3 = me.doc.createElement('span');
   span3.setAttribute('class', 'username');
-  span3.innerHTML = placeInfo["url"].slice(0,50);
+  span3.innerHTML = " (1)";
 
-  div.appendChild(span1);
+  div.appendChild(img);
   div.appendChild(span2);
   div.appendChild(span3);
   li.appendChild(div);

@@ -36,6 +36,7 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 const global = this;
 NEWTAB_SCRIPTS = ["newtab","utils"];
