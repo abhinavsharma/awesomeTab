@@ -40,7 +40,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
-AWESOMETAB_SCRIPTS = ["awesome","utils"];
+AWESOMETAB_SCRIPTS = ["awesometab","utils"];
 
 const global = this;
 const DEBUG = true;

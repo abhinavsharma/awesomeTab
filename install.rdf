@@ -5,6 +5,7 @@
     <creator>Abhinav Sharma</creator>
     <description>Better information on new tabs.</description>
     <homepageURL>http://awesometab.abhinavsharma.me/</homepageURL>
+    <iconURL>http://mozillalabs.com/wp-content/themes/labs_project/img/prospector-header.png</iconURL>
     <id>awesometab@abhinavsharma.me</id>
     <name>AwesomeTab</name>
     <version>0.1</version>
