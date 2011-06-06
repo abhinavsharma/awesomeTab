@@ -40,6 +40,8 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+Cu.import("resource://services-sync/util.js");
+
 AWESOMETAB_SCRIPTS = ["awesometab","utils","collector","searcher","ranker","builder","grandcentral"];
 
 const global = this;
@@ -175,23 +177,12 @@ function setupListener(window) {
         let fileURI = global.aboutURI.resolve('');
         let tBrowser = gBrowser.getBrowserForTab(tab)
         tBrowser.loadURI(fileURI, null, null);
-        
-        let num = gBrowser.browsers.length;
-        let openURIs = [];
-        for (let i = 0; i < num; i++) {
-          var b = gBrowser.getBrowserAtIndex(i);
-          try {
-            openURIs.push(b.currentURI.spec);
-          } catch(e) {
-            Components.utils.reportError(e);
-          }
-        }
-
+       
         tab.linkedBrowser.addEventListener("load", function() {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new AwesomeTab(doc, openURIs);
+          let dashboard = new AwesomeTab(doc);
         }, true);
 
       }

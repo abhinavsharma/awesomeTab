@@ -1,8 +1,8 @@
-function TagCollector(currentPlaces) {
+function TagCollector(currentPlaces, utils) {
   let me = this;
   reportError("incoming open uri: " + JSON.stringify(currentPlaces));
   me.currentPlaces = currentPlaces;
-  me.utils = new AwesomeTabUtils();
+  me.utils = utils;
   me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
                   .getService(Ci.nsITaggingService);
   me.newURI = Cc["@mozilla.org/network/io-service;1"]

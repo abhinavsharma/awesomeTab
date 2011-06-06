@@ -1,6 +1,6 @@
-function Searcher(collectedTags, collectedHosts) {
+function Searcher(collectedTags, collectedHosts, utils) {
   let me = this;
-  me.utils = new AwesomeTabUtils();
+  me.utils = utils;
   me.central = new SiteCentral();
   me.collectedHosts = collectedHosts;
   me.numHosts = collectedHosts.length;

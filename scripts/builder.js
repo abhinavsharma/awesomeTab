@@ -1,7 +1,7 @@
-function Builder(rankedResults, doc) {
+function Builder(rankedResults, doc, utils) {
   let me = this;
   me.doc = doc;
-  me.utils = new AwesomeTabUtils();
+  me.utils = utils;
   me.results = {
     "bThT": [],
     "bThF": [],

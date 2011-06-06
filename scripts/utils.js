@@ -1,7 +1,11 @@
 AwesomeTabUtils = function() {
   let me = this;
   reportError("koala utils init");
-  Cu.import("resource://services-sync/util.js");
+
+  me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
+                  .getService(Ci.nsITaggingService);
+
+  me.GET_PLACES_FROM_TAG = {};
 };
 
 AwesomeTabUtils.prototype.getCurrentWindow = function() {
@@ -11,25 +15,22 @@ AwesomeTabUtils.prototype.getCurrentWindow = function() {
   return win;
 };
 
-AwesomeTabUtils.prototype.isHub = function() {
-  return true;
-};
-
 AwesomeTabUtils.prototype.getPlacesFromTag = function(tag) {
   let me = this;
-  let taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
-                   .getService(Ci.nsITaggingService);
-  let uris = taggingSvc.getURIsForTag(tag);
+  if (tag in me.GET_PLACES_FROM_TAG) {
+    return me.GET_PLACES_FROM_TAG[tag];
+  }
+  let uris = me.taggingSvc.getURIsForTag(tag);
   let places = [];
   uris.forEach(function(uri) {
     let placeData = me.getData(["id"], {"url":uri.spec}, "moz_places");
     if (!placeData || placeData.length == 0) return;
-    //reportError("getting place id");
     let placeId = placeData[0]["id"];
     places.push(placeId);
   });
   //reportError("places for tag " + tag + " are " + JSON.stringify(places));
-  return places;
+  me.GET_PLACES_FROM_TAG[tag] = places;
+  return places;;
 }
 
 
@@ -48,10 +49,15 @@ AwesomeTabUtils.prototype.isBookmarked = function(placeId) {
 
 AwesomeTabUtils.prototype.getPlaceIdFromURL = function(url) {
   let me = this;
+  if (url in me.GET_PLACE_ID_FROM_URL) {
+    return me.GET_PLACE_ID_FROM_URL(url);
+  }
   let result = this.getData(["id"], {"url" : url}, "moz_places");
   if (result.length == 0) {
+    me.GET_PLACE_ID_FROM_URL(url) = null;
     return null;
   } else {
+    me.GET_PLACE_ID_FROM_URL(url) = null;
     return result[0]["id"];
   }
 };

@@ -1,7 +1,7 @@
-function TagRanker(searchResults) {
+function TagRanker(searchResults, utils) {
   let me = this;
   me.searchResults = searchResults;
-  me.utils = new AwesomeTabUtils();
+  me.utils = utils;
   me.rank();
 };
 
