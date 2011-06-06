@@ -26,23 +26,28 @@ TagCollector.prototype.getHosts = function() {
 /* returns { rev_host -> [placeId] } map */
 TagCollector.prototype.clusterByHost = function() {
   let me = this;
+
+  function getPlaceIdHostMap() {
+    let condition = Object.keys(me.currentPlaces).join(" OR ");
+    let query = "SELECT id, rev_host FROM moz_places WHERE :condition";
+    let revHostData = me.utils.getDataQuery(query, {
+      "condition": condition,
+    }, ["id", "rev_host"]);
+    let revMap = {};
+    revHostData.forEach(function ({id, rev_host}) { revMap[id] = rev_host });
+    return revMap;
+  }
+
   let resultMap = {};
   me.allHosts = [];
+  let placeHostMap = getPlaceIdHostMap();
   for (let placeId in me.currentPlaces) {
-    let placeInfo = me.utils.getData(["id", "rev_host"], {
-      "id": placeId,
-    }, "moz_places");
-    if (placeInfo.length == 0 || !placeInfo[0]["id"] || !placeInfo[0]["rev_host"]) {
-      return;
-    }
-    let id =  placeId;
-    let revHost = placeInfo[0]["rev_host"];
-    reportError("adding place to map");
+    let revHost = placeHostMap[placeId];
     if (!(revHost in resultMap)) {
       me.allHosts.push(revHost);
-      resultMap[revHost] = [id];
+      resultMap[revHost] = [placeId];
     } else {
-      resultMap[revHost].push(id);
+      resultMap[revHost].push(placeId);
     }
   }
   reportError("returing clustered map: " + JSON.stringify(resultMap));

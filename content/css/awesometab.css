@@ -1,0 +1,37 @@
+/* ------------------
+ styling for the tables 
+   ------------------   */
+
+
+body {
+	line-height: 1.6em;
+}
+
+
+table
+{
+  display: none;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+  margin: 45px auto 0 auto;
+	width: 720px;
+	text-align: left;
+}
+th
+{
+	padding: 20px;
+	font-weight: normal;
+	font-size: 13px;
+	color: #039;
+	text-transform: uppercase;
+}
+
+tr {
+  width: 100%;
+}
+
+td
+{
+	padding: 10px 20px;
+	color: #669;
+}
