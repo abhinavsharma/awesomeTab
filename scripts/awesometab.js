@@ -2,13 +2,24 @@ function AwesomeTab(doc, openURIs) {
   let me = this;
   me.MINUTE_CUTOFF = 10;
   me.openURIs = openURIs;
+  let collector = new TagCollector(openURIs);
+  let collectedTags = collector.getResults();
+  let collectedHosts = collector.getHosts();
+  let searcher = new Searcher(collectedTags, collectedHosts);
+  let searchResults = searcher.getResults();
+  let ranker = new TagRanker(searchResults);
+  let rankedResults = ranker.getResults();
+  let builder = new Builder(rankedResults, doc);
+  builder.show();
+  /*
   me.builder = new AwesomeTabBuilder(doc);
   me.utils = new AwesomeTabUtils();
   me.setupNewtab();
+  */
 }
 
 AwesomeTab.prototype.setupNewtab = function() {
-  let me =this;
+  let me = this;
   let currentPlaces = me.getVisiblePlaces();
   /*
   let visitsMap = me.constructVisitsMap(currentPlaces);

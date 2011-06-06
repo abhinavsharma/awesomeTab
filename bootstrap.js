@@ -40,7 +40,7 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
-AWESOMETAB_SCRIPTS = ["awesometab","utils"];
+AWESOMETAB_SCRIPTS = ["awesometab","utils","collector","searcher","ranker","builder","grandcentral"];
 
 const global = this;
 const DEBUG = true;
@@ -175,8 +175,6 @@ function setupListener(window) {
         let fileURI = global.aboutURI.resolve('');
         let tBrowser = gBrowser.getBrowserForTab(tab)
         tBrowser.loadURI(fileURI, null, null);
-
-        // this is deliberate
         
         let num = gBrowser.browsers.length;
         let openURIs = [];
@@ -212,7 +210,7 @@ function startup(data, reason) {
       let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
       Services.scriptloader.loadSubScript(fileURI.spec, global);
     });
-    global.aboutURI = addon.getResourceURI("content/newtab.html");
+    global.aboutURI = addon.getResourceURI("content/awesometab.html");
     watchWindows(setupListener);
   });
 }
