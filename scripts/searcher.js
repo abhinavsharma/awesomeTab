@@ -11,6 +11,7 @@ function Searcher(collectedTags, collectedHosts, utils) {
 Searcher.prototype.getPlaces = function(collectedTags) {
   let me = this;
   let places = {};
+  me.central.hubMapForHosts(Object.keys(collectedTags));
   for (let tag in collectedTags) {
     let tagInfo = collectedTags[tag];
     let p = tagInfo["hosts"].length / me.numHosts;
@@ -18,7 +19,7 @@ Searcher.prototype.getPlaces = function(collectedTags) {
       if (!(placeId in places)) {
         places[placeId] = {
           "tags"  : [[tag, tagInfo["bookmarked"], p, me.utils.getPlacesFromTag(tag).length]],
-          "isHub" : me.central.isHub(placeId),
+          "isHub" : me.central.isHubFromMap(placeId),
           "isBookmarked" : me.utils.isBookmarked(placeId),
         };
       } else {

@@ -1,8 +1,9 @@
 function AwesomeTab(doc) {
   let me = this;
+  try {
   me.utils = new AwesomeTabUtils();
   reportError("getting visible places");
-  let currentPlaces = me.getVisiblePlaces();
+  let currentPlaces = me.getLastKVisiblePlaces(5);
   reportError("collecting tags");
   let collector = new TagCollector(currentPlaces, me.utils);
   let collectedTags = collector.getResults();
@@ -16,6 +17,9 @@ function AwesomeTab(doc) {
   reportError("showing results");
   let builder = new Builder(rankedResults, doc, me.utils);
   builder.show();
+  } catch (ex) {
+    reportError(ex);
+  }
 }
 
 
@@ -34,6 +38,19 @@ AwesomeTab.prototype.getVisibleURIs = function() {
   return URIs;
 }
 
+AwesomeTab.prototype.getLastKVisiblePlaces = function(k) {
+  let me = this;
+  let condition = Object.keys(me.getVisiblePlaces()).map(function(placeId) {
+    return "place_id=" + placeId;
+  }).join(" OR ");
+  let sqlQuery = "SELECT place_id FROM moz_historyvisits WHERE " + condition +" GROUP BY "
+    +"place_id ORDER BY id DESC LIMIT " + k;
+  let params = {
+  }
+  let data =  me.utils.getDataQuery(sqlQuery, params, ["place_id"])
+  reportError(JSON.stringify(data));
+  return data.map(function({place_id}) {return place_id;})
+};
 
 
 AwesomeTab.prototype.getVisiblePlaces = function() {

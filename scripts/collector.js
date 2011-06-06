@@ -28,7 +28,7 @@ TagCollector.prototype.clusterByHost = function() {
   let me = this;
 
   function getPlaceIdHostMap() {
-    let condition = Object.keys(me.currentPlaces).join(" OR ");
+    let condition = me.currentPlaces.join(" OR ");
     let query = "SELECT id, rev_host FROM moz_places WHERE :condition";
     let revHostData = me.utils.getDataQuery(query, {
       "condition": condition,
@@ -41,15 +41,18 @@ TagCollector.prototype.clusterByHost = function() {
   let resultMap = {};
   me.allHosts = [];
   let placeHostMap = getPlaceIdHostMap();
-  for (let placeId in me.currentPlaces) {
+  me.currentPlaces.forEach(function(placeId) {
     let revHost = placeHostMap[placeId];
+    if (revHost.length < 3) {
+      return;
+    }
     if (!(revHost in resultMap)) {
       me.allHosts.push(revHost);
       resultMap[revHost] = [placeId];
     } else {
       resultMap[revHost].push(placeId);
     }
-  }
+  });
   reportError("returing clustered map: " + JSON.stringify(resultMap));
   return resultMap;
 };
@@ -70,8 +73,9 @@ TagCollector.prototype.collectTags = function(clusterMap) {
             }
           } else {
             let resDict = allTags[bmTag];
+            reportError(JSON.stringify(resDict["hosts"]));
             if (resDict["hosts"].indexOf(revHost) < 0) {
-              resDict.push(revHost);
+              resDict["hosts"].push(revHost);
             }
             resDict["bookmarked"] = true;
             allTags[bmTag] = resDict;
