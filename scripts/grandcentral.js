@@ -4,7 +4,14 @@ function SiteCentral() {
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
-  return true;
+  let me = this;
+  let sqlQuery = "SELECT * FROM (SELECT p.id as id FROM " + 
+    "(SELECT * FROM moz_places WHERE id=:placeId) src INNER JOIN moz_places p " + 
+    "ON src.rev_host = p.rev_host ORDER BY p.frecency DESC LIMIT 1) res " + 
+    "WHERE res.id = :placeId";
+  return  me.utils.getDataQuery(sqlQuery, {
+      "placeId" : placeId,
+    }, ["id"]).length > 0;
 }
 
 

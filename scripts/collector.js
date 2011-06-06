@@ -1,7 +1,7 @@
-function TagCollector(openURIs) {
+function TagCollector(currentPlaces) {
   let me = this;
-  reportError("incoming open uri: " + openURIs);
-  me.openURIs = openURIs;
+  reportError("incoming open uri: " + JSON.stringify(currentPlaces));
+  me.currentPlaces = currentPlaces;
   me.utils = new AwesomeTabUtils();
   me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
                   .getService(Ci.nsITaggingService);
@@ -28,15 +28,14 @@ TagCollector.prototype.clusterByHost = function() {
   let me = this;
   let resultMap = {};
   me.allHosts = [];
-  reportError("open URIs are" + me.openURIs);
-  me.openURIs.forEach(function(uri) {
+  for (let placeId in me.currentPlaces) {
     let placeInfo = me.utils.getData(["id", "rev_host"], {
-      "url" : uri
+      "id": placeId,
     }, "moz_places");
     if (placeInfo.length == 0 || !placeInfo[0]["id"] || !placeInfo[0]["rev_host"]) {
       return;
     }
-    let id =  placeInfo[0]["id"];
+    let id =  placeId;
     let revHost = placeInfo[0]["rev_host"];
     reportError("adding place to map");
     if (!(revHost in resultMap)) {
@@ -45,7 +44,7 @@ TagCollector.prototype.clusterByHost = function() {
     } else {
       resultMap[revHost].push(id);
     }
-  });
+  }
   reportError("returing clustered map: " + JSON.stringify(resultMap));
   return resultMap;
 };

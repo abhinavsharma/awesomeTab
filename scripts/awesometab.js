@@ -2,13 +2,20 @@ function AwesomeTab(doc, openURIs) {
   let me = this;
   me.MINUTE_CUTOFF = 10;
   me.openURIs = openURIs;
-  let collector = new TagCollector(openURIs);
+  me.utils = new AwesomeTabUtils();
+  reportError("getting visible places");
+  let currentPlaces = me.getVisiblePlaces();
+  reportError("collecting tags");
+  let collector = new TagCollector(currentPlaces);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
+  reportError("searching tags");
   let searcher = new Searcher(collectedTags, collectedHosts);
   let searchResults = searcher.getResults();
+  reportError("ranking tags");
   let ranker = new TagRanker(searchResults);
   let rankedResults = ranker.getResults();
+  reportError("showing results");
   let builder = new Builder(rankedResults, doc);
   builder.show();
   /*

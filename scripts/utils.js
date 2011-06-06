@@ -24,11 +24,11 @@ AwesomeTabUtils.prototype.getPlacesFromTag = function(tag) {
   uris.forEach(function(uri) {
     let placeData = me.getData(["id"], {"url":uri.spec}, "moz_places");
     if (!placeData || placeData.length == 0) return;
-    reportError("getting place id");
+    //reportError("getting place id");
     let placeId = placeData[0]["id"];
     places.push(placeId);
   });
-  reportError("places for tag " + tag + " are " + JSON.stringify(places));
+  //reportError("places for tag " + tag + " are " + JSON.stringify(places));
   return places;
 }
 
