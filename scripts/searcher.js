@@ -1,25 +1,28 @@
-function Searcher(collectedTags, collectedHosts, utils) {
+function Searcher(collectedTags, collectedHosts, excludedPlaces, utils) {
   let me = this;
   me.utils = utils;
   me.central = new SiteCentral();
   me.collectedHosts = collectedHosts;
   me.numHosts = collectedHosts.length;
   me.collectedTags = collectedTags;
+  me.excludedPlaces = excludedPlaces;
   me.placesMap = me.getPlaces(me.collectedTags);
 }
 
 Searcher.prototype.getPlaces = function(collectedTags) {
   let me = this;
   let places = {};
-  me.central.hubMapForHosts(Object.keys(collectedTags));
   for (let tag in collectedTags) {
     let tagInfo = collectedTags[tag];
     let p = tagInfo["hosts"].length / me.numHosts;
     me.utils.getPlacesFromTag(tag).forEach(function(placeId) {
+      if (placeId in me.excludedPlaces) {
+        return;
+      }
       if (!(placeId in places)) {
         places[placeId] = {
           "tags"  : [[tag, tagInfo["bookmarked"], p, me.utils.getPlacesFromTag(tag).length]],
-          "isHub" : me.central.isHubFromMap(placeId),
+          "isHub" : me.central.isHub(placeId),
           "isBookmarked" : me.utils.isBookmarked(placeId),
         };
       } else {

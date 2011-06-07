@@ -55,7 +55,7 @@ Builder.prototype.show = function() {
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);
-      link.innerHTML = placeInfo["title"] + " (" + JSON.stringify(tags) + ")";
+      link.innerHTML = placeInfo["title"] + " (" + JSON.stringify(tags) + ")" + score;
 
 
       let row = me.doc.createElement('tr');

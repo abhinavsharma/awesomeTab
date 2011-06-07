@@ -3,13 +3,14 @@ function AwesomeTab(doc) {
   try {
   me.utils = new AwesomeTabUtils();
   reportError("getting visible places");
-  let currentPlaces = me.getLastKVisiblePlaces(5);
+  let visiblePlaces = me.getVisiblePlaces();
+  let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 5);
   reportError("collecting tags");
   let collector = new TagCollector(currentPlaces, me.utils);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
-  let searcher = new Searcher(collectedTags, collectedHosts, me.utils);
+  let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
   let searchResults = searcher.getResults();
   reportError("ranking tags");
   let ranker = new TagRanker(searchResults, me.utils);
@@ -22,25 +23,9 @@ function AwesomeTab(doc) {
   }
 }
 
-
-/* TODO: improve this to get k most recent URIs */
-AwesomeTab.prototype.getVisibleURIs = function() {
+AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let me = this;
-  let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
-  let visibleTabs = gBrowser.visibleTabs;
-  let URIs = {};
-  visibleTabs.forEach(function(tab) {
-    let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
-    if (URIs.indexOf(uri) < 0) {
-      URIs.push(uri); // small finite list, might as well use an array
-    }
-  });
-  return URIs;
-}
-
-AwesomeTab.prototype.getLastKVisiblePlaces = function(k) {
-  let me = this;
-  let condition = Object.keys(me.getVisiblePlaces()).map(function(placeId) {
+  let condition = Object.keys(visiblePlaces).map(function(placeId) {
     return "place_id=" + placeId;
   }).join(" OR ");
   let sqlQuery = "SELECT place_id FROM moz_historyvisits WHERE " + condition +" GROUP BY "
