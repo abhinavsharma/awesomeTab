@@ -55,13 +55,21 @@ Builder.prototype.show = function() {
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);
-      link.innerHTML = placeInfo["title"] + " (" + JSON.stringify(tags) + ")" + score;
+      link.innerHTML = placeInfo["title"];
 
 
       let row = me.doc.createElement('tr');
       let cell = me.doc.createElement('td');
       cell.appendChild(link);
+      let cell2 = me.doc.createElement('td');
+      cell2.innerHTML = JSON.stringify(tags);
+      let cell3 = me.doc.createElement('td');
+      cell3.innerHTML = score;
+
+
       row.appendChild(cell);
+      row.appendChild(cell2);
+      row.appendChild(cell3);
       $(type).appendChild(row);
     });
   }

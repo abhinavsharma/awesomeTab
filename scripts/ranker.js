@@ -16,8 +16,8 @@ TagRanker.prototype.rank = function() {
       let tag = tagInfo[0];
       let isBookmarkedTag = tagInfo[1];
       let pHost = tagInfo[2];
-      let tagFrequency = tagInfo[3];
-      score += (1.44 * Math.log(1 + (1/tagFrequency))) * pHost * (isBookmarkedTag ? 4 : 1);
+      let idf = tagInfo[3];
+      score += idf;
     });
     reportError("basic scoring done");
     // calculate document score
