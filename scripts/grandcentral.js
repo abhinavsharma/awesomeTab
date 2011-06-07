@@ -4,6 +4,7 @@ function SiteCentral() {
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
+  return true;
   let me = this;
   let sqlQuery = "SELECT * FROM (SELECT p.id as id FROM " + 
     "(SELECT * FROM moz_places WHERE id=:placeId) src INNER JOIN moz_places p " + 
