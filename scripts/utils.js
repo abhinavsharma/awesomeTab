@@ -76,16 +76,14 @@ AwesomeTabUtils.prototype.getPlaceIdFromURL = function(url) {
 };
 
 AwesomeTabUtils.prototype.getDataQuery = function(query, params, select) {
-  let stm = Svc.History.DBConnection.createAsyncStatement(query);
   reportError(query);
   reportError(JSON.stringify(params));
-  for (let key in params) {
-    stm.params[key] = params[key];
-  }
   let result = [];
-  Utils.queryAsync(stm, select).forEach(function(row) {
-    result.push(row);
-  });
+  spinQuery(PlacesUtils.history.DBConnection, {
+    names: select,
+    params: params,
+    query: query,
+  }).forEach(function(row) result.push(row));
   //reportError(JSON.stringify(result));
   return result;
 }
@@ -100,18 +98,20 @@ AwesomeTabUtils.prototype.getData = function(fields, conditions, table) {
   }
   queryString += conditionArr.join(" AND ");
   //reportError("query string constructed" + queryString);
-  let stm = Svc.History.DBConnection.createAsyncStatement(queryString);
   //reportError("statement created, parametrizing with " + JSON.stringify(conditions));
+  let params = {};
   for ([k, v] in Iterator(conditions)) {
     //reportError("adding condition + " + k + " : " + v);
-    stm.params[k + "_v"] = v;
+    params[k + "_v"] = v;
   }
   //reportError("params are" + JSON.stringify(stm.params));
   let ret = [];
   //reportError("executing statement");
-  Utils.queryAsync(stm, fields).forEach(function(row) {
-    ret.push(row);
-  });
+  spinQuery(PlacesUtils.history.DBConnection, {
+    names: fields,
+    params: params,
+    query: queryString,
+  }).forEach(function(row) ret.push(row));
   //reportError("returing " + JSON.stringify(ret));
   return ret;
 };
@@ -123,12 +123,16 @@ AwesomeTabUtils.prototype.updateData = function(id, data, table) {
   }
   queryString += "WHERE id = :id";
   //reportError(queryString);
-  let stm = Svc.History.DBConnection.createAsyncStatement(queryString);
-  stm.params["id"] = id;
-  for ([k,v] in Iterator(data)) {
-    stm.params[k + "_v"] = v;
+  let params = {
+    id: id,
   }
-  Utils.queryAsync(stm, []);
+  for ([k,v] in Iterator(data)) {
+    params[k + "_v"] = v;
+  }
+  spinQuery(PlacesUtils.history.DBConection, {
+    params: params,
+    query: queryString,
+  });
 };
 
 AwesomeTabUtils.prototype.insertData = function(data, table) {
@@ -142,12 +146,15 @@ AwesomeTabUtils.prototype.insertData = function(data, table) {
   queryString += flatData.map(function(d) {return ":" + d + "_v";}).join(',');
   queryString += ");";
   //reportError(queryString);
-  let stm = Svc.History.DBConnection.createAsyncStatement(queryString);
+  let params = {};
   for ([k,v] in Iterator(data)) {
-    stm.params[k + "_v"] = v;
+    params[k + "_v"] = v;
   }
   //reportError(JSON.stringify(stm.params));
-  Utils.queryAsync(stm, []);
+  spinQuery(PlacesUtils.history.DBConnection, {
+    params: params,
+    query: queryString,
+  });
 };
 
 AwesomeTabUtils.prototype.isValidURL = function(url) {
