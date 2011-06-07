@@ -14,6 +14,32 @@ SiteCentral.prototype.isHub = function(placeId) {
     }, ["id"]).length > 0;
 }
 
+/*
+ * some heuristics, goal is to reject something very unlikely
+ * to be a hub quickly.
+ */
+SiteCentral.prototype.isURLHub = function(url) {
+  if (url.length > 80) { // very unlikely to be a hub
+    return false
+  }
+  if (!url.match(/[0-9]+/g).reduce(function(p,c,i,a) {
+        return (p && (c.length < 8))
+      }, true)) {
+    return false; // if after removing slash, more than 8 consec digits
+  }
+  let splitURL = url.split('/');
+  if (splitURL.length > 7) {
+    return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
+  }
+  if (!splitURL.reduce(function(p,c){
+        return (p && c.length < 15);
+      }, true)) {
+    return false;
+  }
+
+
+}
+
 SiteCentral.prototype.hubMapForHosts = function(hosts) {
   let me = this;
   let sqlQuery = "SELECT id, visit_count FROM (SELECT AVG(visit_count) " + 

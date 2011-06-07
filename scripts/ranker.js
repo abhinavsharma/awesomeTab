@@ -25,6 +25,7 @@ TagRanker.prototype.rank = function() {
       "score" : score,
       "bookmarked": me.searchResults[placeId]["isBookmarked"],
       "hub": me.searchResults[placeId]["isHub"],
+      "tags": me.searchResults[placeId]["tags"],
     }
   }
 };

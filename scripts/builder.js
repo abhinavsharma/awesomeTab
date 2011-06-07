@@ -11,14 +11,15 @@ function Builder(rankedResults, doc, utils) {
   for (let placeId in rankedResults) {
     let place = rankedResults[placeId];
     let score = place.score;
+    let tags = place.tags;
     if (place.bookmarked && place.hub) {
-      me.results["bThT"].push([placeId, score]);
+      me.results["bThT"].push([placeId, score, tags]);
     } else if (place.bookmarked && !place.hub) {
-      me.results["bThF"].push([placeId, score]);
+      me.results["bThF"].push([placeId, score, tags]);
     } else if (!place.bookmarked && place.hub) {
-      me.results["bFhT"].push([placeId, score]);
+      me.results["bFhT"].push([placeId, score, tags]);
     } else {
-      me.results["bFhF"].push([placeId, score]);
+      me.results["bFhF"].push([placeId, score, tags]);
     }
   };
 
@@ -39,6 +40,7 @@ Builder.prototype.show = function() {
     results.forEach(function (a) {
       let placeId = a[0];
       let score = a[1];
+      let tags = a[2].map(function(d){return d[0]});
 
       let placeInfo = me.utils.getData(["url", "title"], {"id":placeId}, "moz_places");
       if (!placeInfo || placeInfo.length == 0 || !(placeInfo = placeInfo[0]) || !placeInfo["title"] || !placeInfo["url"]) {
@@ -53,7 +55,7 @@ Builder.prototype.show = function() {
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);
-      link.innerHTML = placeInfo["title"];
+      link.innerHTML = placeInfo["title"] + " (" + JSON.stringify(tags) + ")";
 
 
       let row = me.doc.createElement('tr');
