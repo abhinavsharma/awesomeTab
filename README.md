@@ -40,8 +40,3 @@ Workflow
 --------
 
 1. User opens new tab, create an awesomeTab instance.
-2. awesomeTab calls tagColelctor which returns [(tag, percent_hosts, from_bookmark)] list
-3. awesomeTab calls bookmarkSearcher + tagRank with given data 
-4. awesomeTab calls placesSearcher + tagRank2 withthe given data.
-5. awesomeTag calls resultMixer with places
-6. awesomeTag calls tabBuilder with all the supplied data.
