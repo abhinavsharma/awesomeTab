@@ -1,2 +1,2 @@
-zip -r ~/Desktop/awesomeTab.xpi . -x@exclude.lst
+zip -r awesomeTab.xpi . -x@exclude.lst
 
