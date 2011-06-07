@@ -55,8 +55,9 @@ Builder.prototype.show = function() {
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);
-      link.innerHTML = placeInfo["title"];
+      let bmTitle = me.utils.getBookmarkTitleFromURL(placeInfo["url"]);
 
+      link.innerHTML = bmTitle ? bmTitle : placeInfo["title"];
 
       let row = me.doc.createElement('tr');
       let cell = me.doc.createElement('td');

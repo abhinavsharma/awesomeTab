@@ -4,8 +4,12 @@ AwesomeTabUtils = function() {
 
   me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
                   .getService(Ci.nsITaggingService);
-
+  me.bmsvc = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
+                   .getService(Ci.nsINavBookmarksService);
+  me.ios = Cc["@mozilla.org/network/io-service;1"]
+           .getService(Ci.nsIIOService);
   me.GET_PLACES_FROM_TAG = {};
+  me.GET_PLACE_ID_FROM_URL = {}
 };
 
 AwesomeTabUtils.prototype.getCurrentWindow = function() {
@@ -13,6 +17,15 @@ AwesomeTabUtils.prototype.getCurrentWindow = function() {
   let chromeWin = Services.wm.getMostRecentWindow("navigator:browser");
   let win = chromeWin.gBrowser.selectedBrowser.contentWindow;
   return win;
+};
+
+AwesomeTabUtils.prototype.getBookmarkTitleFromURL = function(url) {
+  let me = this;
+  let bookmarkIds = me.bmsvc.getBookmarkIdsForURI(me.ios.newURI(url, null, null));
+  if (bookmarkIds.length == 0) {
+    return null;
+  }
+  return me.bmsvc.getItemTitle(bookmarkIds[0]);
 };
 
 AwesomeTabUtils.prototype.getPlacesFromTag = function(tag) {

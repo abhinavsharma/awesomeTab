@@ -4,15 +4,13 @@ function SiteCentral() {
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
-  return true;
   let me = this;
-  let sqlQuery = "SELECT * FROM (SELECT p.id as id FROM " + 
-    "(SELECT * FROM moz_places WHERE id=:placeId) src INNER JOIN moz_places p " + 
-    "ON src.rev_host = p.rev_host ORDER BY p.frecency DESC LIMIT 1) res " + 
-    "WHERE res.id = :placeId";
-  return  me.utils.getDataQuery(sqlQuery, {
-      "placeId" : placeId,
-    }, ["id"]).length > 0;
+  let data = me.utils.getData(["url"], {"id":placeId},"moz_places");
+  if (data.length == 0 || !data[0]["url"]) {
+    return false;
+  } else {
+    return me.isURLHub(data[0]["url"]);
+  }
 }
 
 /*
@@ -20,25 +18,44 @@ SiteCentral.prototype.isHub = function(placeId) {
  * to be a hub quickly.
  */
 SiteCentral.prototype.isURLHub = function(url) {
+  if (!url) {
+    return true;
+  }
+  url = url.split('?');
+  if (url.length > 1) {
+    if ((/^[a-z]=/).test(url[1])) {
+      return false;
+    }
+  }
+
+  url = url[0];
+
+  
+
   if (url.length > 80) { // very unlikely to be a hub
+    reportError(url + "TOO LONG");
     return false
   }
-  if (!url.match(/[0-9]+/g).reduce(function(p,c,i,a) {
-        return (p && (c.length < 8))
+
+  let r1 = url.match(/[0-9]+/g);
+  if (r1 && !r1.reduce(function(p,c,i,a) {
+        return (p && (c.length < 6))
       }, true)) {
+    reportError(url + "more than 8 consecutive digits");
     return false; // if after removing slash, more than 8 consec digits
   }
   let splitURL = url.split('/');
   if (splitURL.length > 7) {
+    reportError(url + "has too many slashes");
     return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
   }
   if (!splitURL.reduce(function(p,c){
-        return (p && c.length < 15);
+        return (p && c.length < 40);
       }, true)) {
+    reportError(url + "has component over 40 chars");
     return false;
   }
-
-
+  return true;
 }
 
 SiteCentral.prototype.hubMapForHosts = function(hosts) {
