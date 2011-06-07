@@ -74,12 +74,21 @@ Builder.prototype.show = function() {
       $(type).appendChild(row);
     });
   }
-
+  
+  let showFail = true;
   if (me.results["bThT"].length > 0) {
     populate(me.results["bThT"], "bThT");
+    showFail = false;
   }
   if (me.results["bThF"].length > 0) {
     populate(me.results["bThF"], "bThF");
+    showFail = false;
+  }
+  if (showFail) {
+    let h1 = me.doc.createElement('h1');
+    h1.innerHTML = "awesomeTab returned no results. You dont seem to have bookmarks with relevant tags.";
+    $('no-results').appendChild(h1);
+    $('no-results').style.display = 'block';
   }
 };
 
