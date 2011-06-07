@@ -78,14 +78,11 @@ AwesomeTabUtils.prototype.getPlaceIdFromURL = function(url) {
 AwesomeTabUtils.prototype.getDataQuery = function(query, params, select) {
   reportError(query);
   reportError(JSON.stringify(params));
-  let result = [];
-  spinQuery(PlacesUtils.history.DBConnection, {
+  return spinQuery(PlacesUtils.history.DBConnection, {
     names: select,
     params: params,
     query: query,
-  }).forEach(function(row) result.push(row));
-  //reportError(JSON.stringify(result));
-  return result;
+  })
 }
 
 AwesomeTabUtils.prototype.getData = function(fields, conditions, table) {
@@ -105,15 +102,13 @@ AwesomeTabUtils.prototype.getData = function(fields, conditions, table) {
     params[k + "_v"] = v;
   }
   //reportError("params are" + JSON.stringify(stm.params));
-  let ret = [];
   //reportError("executing statement");
-  spinQuery(PlacesUtils.history.DBConnection, {
+  return spinQuery(PlacesUtils.history.DBConnection, {
     names: fields,
     params: params,
     query: queryString,
-  }).forEach(function(row) ret.push(row));
+  });
   //reportError("returing " + JSON.stringify(ret));
-  return ret;
 };
 
 AwesomeTabUtils.prototype.updateData = function(id, data, table) {

@@ -45,7 +45,7 @@ Cu.import("resource://services-sync/util.js");
 AWESOMETAB_SCRIPTS = ["awesometab","utils","collector","searcher","ranker","builder","grandcentral"];
 
 const global = this;
-const DEBUG = true;
+const DEBUG = false;
 const reportError = DEBUG ? Cu.reportError : function(err) {}
 
 /**
