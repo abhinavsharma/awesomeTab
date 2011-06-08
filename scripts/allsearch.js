@@ -7,6 +7,8 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
   let me = this;
   me.utils = utils;
   me.excludedPlaces = excludedPlaces;
+  // TODO: construct a faster base table
+  me.BASE_TABLE = "";
   me.N = me.utils.getDataQuery("SELECT COUNT(1) as N FROM moz_places;", 
     {}, ["N"])[0]["N"];
   me.collectedTags = collectedTags;
@@ -27,7 +29,7 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
 AllSearch.prototype.createIDFMap = function() {
   let me = this;
   for (let tag in me.collectedTags) {
-    let n = me.utils.getDataQuery("SELECT COUNT(1) as n FROM " +  me.BASE_TABLE + 
+    let n = me.utils.getDataQuery("SELECT COUNT(1) as n FROM moz_places" +
       " WHERE title LIKE :tag", {
         "tag" : "%" + tag + "%"
       }, ["n"])[0]["n"];

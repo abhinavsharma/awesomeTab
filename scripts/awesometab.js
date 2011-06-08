@@ -22,7 +22,7 @@ function AwesomeTab(doc) {
   let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
   builder.show();
   } catch (ex) {
-    reportError(ex);
+    reportError(JSON.stringify(ex));
   }
 }
 
