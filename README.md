@@ -26,7 +26,8 @@ Reading
 
 [Aza Raskin on New Tabs](http://www.azarask.in/blog/post/new-tabs/)
 [Firefox 3.1 Original Concept](http://www.azarask.in/blog/post/firefox-31-new-tab-spec/)
-
+[awesomeTab Issue Tracking](https://github.com/abhinavsharma/awesomeTab/issues)
+[Firefox Newtab Wiki](https://wiki.mozilla.org/Firefox/Projects/About:newtab)
 
 Software Design
 ===============

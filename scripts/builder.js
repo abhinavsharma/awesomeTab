@@ -12,20 +12,21 @@ function Builder(rankedResults, doc, utils) {
     let place = rankedResults[placeId];
     let score = place.score;
     let tags = place.tags;
+    let frecency = place.frecency ? place.frecency : 0;
     if (place.bookmarked && place.hub) {
-      me.results["bThT"].push([placeId, score, tags]);
+      me.results["bThT"].push([placeId, score, frecency, tags]);
     } else if (place.bookmarked && !place.hub) {
-      me.results["bThF"].push([placeId, score, tags]);
+      me.results["bThF"].push([placeId, score, frecency, tags]);
     } else if (!place.bookmarked && place.hub) {
-      me.results["bFhT"].push([placeId, score, tags]);
+      me.results["bFhT"].push([placeId, score, frecency, tags]);
     } else {
-      me.results["bFhF"].push([placeId, score, tags]);
+      me.results["bFhF"].push([placeId, score, frecency, tags]);
     }
   };
 
   for (let k in me.results) {
     me.results[k] = me.results[k].sort(function(a,b) {
-      return b[1] - a[1];
+      return b[1] - a[1] !=0 ? b[1] - a[1] : b[2] - a[2];
     });
   }
 }
@@ -40,7 +41,8 @@ Builder.prototype.show = function() {
     results.forEach(function (a) {
       let placeId = a[0];
       let score = a[1];
-      let tags = a[2].map(function(d){return d[0]});
+      let frecency = a[2];
+      let tags = a[3].map(function(d){return d[0]});
 
       let placeInfo = me.utils.getData(["url", "title"], {"id":placeId}, "moz_places");
       if (!placeInfo || placeInfo.length == 0 || !(placeInfo = placeInfo[0]) || !placeInfo["title"] || !placeInfo["url"]) {
@@ -68,7 +70,7 @@ Builder.prototype.show = function() {
       let cell2 = me.doc.createElement('td');
       cell2.innerHTML = JSON.stringify(tags);
       let cell3 = me.doc.createElement('td');
-      cell3.innerHTML = score;
+      cell3.innerHTML = score + " | " + frecency;
 
 
       row.appendChild(cell);

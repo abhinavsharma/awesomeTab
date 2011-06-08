@@ -8,7 +8,7 @@
     <iconURL>http://mozillalabs.com/wp-content/themes/labs_project/img/prospector-header.png</iconURL>
     <id>awesometab@abhinavsharma.me</id>
     <name>AwesomeTab</name>
-    <version>0.1</version>
+    <version>0.2</version>
 
     <bootstrap>true</bootstrap>
     <type>2</type>

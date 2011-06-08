@@ -431,4 +431,5 @@ STOPWORDS = {
   "free" :  1,
   "internet" : 1,
   "world" : 1,
+  "web" : 1,
 }
