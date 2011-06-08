@@ -66,6 +66,9 @@ TagCollector.prototype.collectTags = function(clusterMap) {
       let bookmarkTags = me.getTagsFromPlace(placeId);
       if (bookmarkTags && bookmarkTags.length > 0) {
         bookmarkTags.forEach(function (bmTag) {
+          if (bmTag in STOPWORDS) {
+            return;
+          }
           if (!(bmTag in allTags)) {
             allTags[bmTag] = {
               "hosts": [revHost],
@@ -84,6 +87,9 @@ TagCollector.prototype.collectTags = function(clusterMap) {
       } else {
         if (titleTags && titleTags.length > 0) {
           titleTags.forEach(function (titleTag) {
+            if (titleTag in STOPWORDS) {
+              return;
+            }
             if (!(titleTag in allTags)) {
               allTags[titleTag] = {
                 "hosts": [revHost],
