@@ -13,11 +13,16 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
   me.MIN_VISIT_COUNT = 5;
   me.MAX_PLACES = 1000;
   me.idfMap = {};
+  me.tfMap = {};
   me.central = new SiteCentral();
   me.BASE_TABLE = "(SELECT id, url, title,frecency,visit_count FROM moz_places WHERE " + 
                   "visit_count > " + me.MIN_VISIT_COUNT + " ORDER BY " + 
                   "visit_count DESC LIMIT " + me.MAX_PLACES + ") base";
   me.createIDFMap();
+  me.avgdl = me.utils.getDataQuery("SELECT AVG(length(title)) as a FROM moz_places WHERE length(title) > 0", 
+    {}, ["a"])[0]["a"];
+  me.avgdl = me.avgdl > 0 ? me.avgdl : 42; // no joke this is about the average from random sampling
+  reportError(me.avgdl);
   me.searchQuery();
 }
 
@@ -30,10 +35,24 @@ AllSearch.prototype.createIDFMap = function() {
         "tag" : "%" + tag + "%"
       }, ["n"])[0]["n"];
     me.idfMap[tag] = Math.log((me.N - n + 0.5)/(n + 0.5));
-    reportError("done with idf map" + JSON.stringify(me.idfMap));
+    // TODO : account for whether tag comes from a  make changes to collector
+    me.tfMap[tag] = me.collectedTags[tag]["hosts"].length;
+    reportError("done with idf map" + JSON.stringify(me.idfMap) + JSON.stringify(me.tfMap));
   }
 }
 
+
+/* 
+ * The problem with using the proper Okapi formula is that everything has a slightly different
+ * score and the secondary sort by frecency becomes useless but this is not what we want.
+ *
+ * The problem is due to doclen, not because of tf. Plus, good websites have terrible titles 
+ * and there's not much that can be done about it.
+ *
+ * Another point about not looking in the title string for the tf is that that makes it
+ * really easy to game the system and have a really high score by multiple instances.
+ * Collecting tf across different hosts helps normalize that to some extent.
+ */
 AllSearch.prototype.searchQuery = function() {
   let me = this;
   let iS = ["id", "url", "title", "frecency", "visit_count"];
@@ -43,17 +62,25 @@ AllSearch.prototype.searchQuery = function() {
   let allTags = {};
   for (let tag in me.collectedTags) {
     mS.push("(title LIKE :str" + i + ") as v" + i);
-    kS.push(":idf" + i +" * (title LIKE :str" + i + ")");
+    kS.push(":idf" + i + " * " + 
+      //"((3 * :tf"+i+") / (2*(1 - 0.75 + 0.75 * (length(title)/:avgdl)) + :tf"+i+")) * "+ // Okapi proper
+      "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
+
+      "(title LIKE :str" + i + ")");
     tS.push("v"+i);
     allTags["v"+i] = tag;
     params["str"+i] = "%" + tag +"%";
-    params["idf"+i] = me.idfMap[tag];
+    params["idf"+i] = me.idfMap[tag] ;
+    params["tf"+i] = me.tfMap[tag];
     i++;
   }
+  //params["avgdl"] = me.avgdl;
   iSelect = iS.concat(mS).join(',') + "," + kS.join('+') + " as score";
   let iCond = "visit_count > 2 AND length(title) > 0 AND score > 0";
   let query = "SELECT " + iSelect + " FROM moz_places WHERE " + iCond + " ORDER BY score DESC";
-  let result = me.utils.getDataQuery(query, params, iS.concat(tS).concat(["score"]));
+  try {
+  var result = me.utils.getDataQuery(query, params, iS.concat(tS).concat(["score"]));
+  } catch (ex) { reportError(JSON.stringify(ex)) };
   me.ranks = {};
   result.forEach(function(data) {
     if (data.id in me.excludedPlaces) {

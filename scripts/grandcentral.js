@@ -2,6 +2,7 @@ function SiteCentral() {
   let me = this;
   me.utils = new AwesomeTabUtils();
   me.re_bad_substrings = new RegExp(/(\/post\/|\/article\/)/g);
+  me.re_is_num = new RegExp(/[0-9]+\/{0,1}/g)
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
@@ -31,9 +32,15 @@ SiteCentral.prototype.isURLHub = function(url) {
   }
 
   url = url[0];
+  let splitURL = url.split('/');
 
+  /* Quick accept */
+  if (splitURL.length < 4) {
+    // 'http://www.mozilla.com' -> http: , "", www.mozilla.com
+    return true;
+  }
   
-
+  /* Quick reject */
   if (url.length > 80) { // very unlikely to be a hub
     reportError(url + "TOO LONG");
     return false
@@ -50,11 +57,16 @@ SiteCentral.prototype.isURLHub = function(url) {
     reportError(url + "more than 8 consecutive digits");
     return false; // if after removing slash, more than 8 consec digits
   }
-  let splitURL = url.split('/');
   if (splitURL.length > 7) {
     reportError(url + "has too many slashes");
     return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
   }
+  
+  if (splitURL[splitURL.length - 1] && me.re_is_num.test(splitURL[splitURL.length - 1])) {
+    // ends with a number
+    return false;
+  }
+
   if (!splitURL.reduce(function(p,c){
         return (p && c.length < 40 && c.split(/[\-\_]/g).length < 3);
       }, true)) {
