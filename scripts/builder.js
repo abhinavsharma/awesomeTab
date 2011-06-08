@@ -1,7 +1,8 @@
-function Builder(rankedResults, doc, utils) {
+function Builder(rankedResults, doc, utils, collectedTitles) {
   let me = this;
   me.doc = doc;
   me.utils = utils;
+  me.collectedTitles = collectedTitles;
   me.results = {
     "bThT": [],
     "bThF": [],
@@ -38,6 +39,10 @@ Builder.prototype.show = function() {
 
   function populate(results, type) {
     $(type + '-table').style.display = "block";
+    
+    /* this is a hacky solution to the page states problem - pandora.com/ and pandora/#inactive */
+    let shownTitles = {};
+
     results.forEach(function (a) {
       let placeId = a[0];
       let score = a[1];
@@ -50,6 +55,12 @@ Builder.prototype.show = function() {
         return;
       }
 
+      if (placeInfo["title"] in shownTitles || placeInfo["title"] in me.collectedTitles) {
+        return;
+      } else {
+        shownTitles[placeInfo["title"]] = 1;
+      }
+
       /*
       let img = me.doc.createElement('img');
       img.style.height = '16px';
@@ -57,6 +68,12 @@ Builder.prototype.show = function() {
       img.style.paddingRight = '4px';
       img.src = PlacesUtils.favicons.getFaviconImageForPage(Utils.makeURI(placeInfo["url"])).spec;
       */
+
+      let bmImg = me.doc.createElement('img');
+      bmImg.style.height = '16px';
+      bmImg.style.width = '16px';
+      bmImg.src = 'img/star.png';
+      bmImg.style.visibility = me.utils.isBookmarked(placeId) ? 'visible' : 'hidden';
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);
@@ -71,11 +88,13 @@ Builder.prototype.show = function() {
       cell2.innerHTML = JSON.stringify(tags);
       let cell3 = me.doc.createElement('td');
       cell3.innerHTML = score + " | " + frecency;
-
+      let cell4 = me.doc.createElement('td');
+      cell4.appendChild(bmImg);
 
       row.appendChild(cell);
       row.appendChild(cell2);
       row.appendChild(cell3);
+      row.appendChild(cell4);
       $(type).appendChild(row);
     });
   }

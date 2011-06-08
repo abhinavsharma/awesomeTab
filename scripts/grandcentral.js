@@ -2,7 +2,8 @@ function SiteCentral() {
   let me = this;
   me.utils = new AwesomeTabUtils();
   me.re_bad_substrings = new RegExp(/(\/post\/|\/article\/)/g);
-  me.re_is_num = new RegExp(/[0-9]+\/{0,1}/g)
+  me.re_is_num = new RegExp(/\/[0-9]+\/{0,1}$/);
+  me.re_bad_param = new RegExp(/^([a-z]|search)=/);
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
@@ -22,11 +23,11 @@ SiteCentral.prototype.isHub = function(placeId) {
 SiteCentral.prototype.isURLHub = function(url) {
   let me = this;
   if (!url) {
-    return true;
+    return false;
   }
   url = url.split('?');
   if (url.length > 1) {
-    if ((/^[a-z]=/).test(url[1])) {
+    if (me.re_bad_param.test(url[1])){
       return false;
     }
   }
@@ -34,11 +35,6 @@ SiteCentral.prototype.isURLHub = function(url) {
   url = url[0];
   let splitURL = url.split('/');
 
-  /* Quick accept */
-  if (splitURL.length < 4) {
-    // 'http://www.mozilla.com' -> http: , "", www.mozilla.com
-    return true;
-  }
   
   /* Quick reject */
   if (url.length > 80) { // very unlikely to be a hub
@@ -46,7 +42,7 @@ SiteCentral.prototype.isURLHub = function(url) {
     return false
   }
   
-  if (me.re_bad_substrings.test(url)) {
+  if (me.re_bad_substrings.test(url) | me.re_is_num.test(url)) {
     return false;
   }
 
@@ -62,11 +58,6 @@ SiteCentral.prototype.isURLHub = function(url) {
     return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
   }
   
-  if (splitURL[splitURL.length - 1] && me.re_is_num.test(splitURL[splitURL.length - 1])) {
-    // ends with a number
-    return false;
-  }
-
   if (!splitURL.reduce(function(p,c){
         return (p && c.length < 40 && c.split(/[\-\_]/g).length < 3);
       }, true)) {

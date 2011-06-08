@@ -15,9 +15,6 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
   me.idfMap = {};
   me.tfMap = {};
   me.central = new SiteCentral();
-  me.BASE_TABLE = "(SELECT id, url, title,frecency,visit_count FROM moz_places WHERE " + 
-                  "visit_count > " + me.MIN_VISIT_COUNT + " ORDER BY " + 
-                  "visit_count DESC LIMIT " + me.MAX_PLACES + ") base";
   me.createIDFMap();
   me.avgdl = me.utils.getDataQuery("SELECT AVG(length(title)) as a FROM moz_places WHERE length(title) > 0", 
     {}, ["a"])[0]["a"];
@@ -65,7 +62,6 @@ AllSearch.prototype.searchQuery = function() {
     kS.push(":idf" + i + " * " + 
       //"((3 * :tf"+i+") / (2*(1 - 0.75 + 0.75 * (length(title)/:avgdl)) + :tf"+i+")) * "+ // Okapi proper
       "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
-
       "(title LIKE :str" + i + ")");
     tS.push("v"+i);
     allTags["v"+i] = tag;

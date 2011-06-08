@@ -432,4 +432,10 @@ STOPWORDS = {
   "internet" : 1,
   "world" : 1,
   "web" : 1,
+  "com": 1,
+  "net": 1,
+  "org" : 1,
+  "edu" : 1,
+  "am": 1,
+  "search" : 1,
 }

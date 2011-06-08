@@ -4,7 +4,7 @@ function AwesomeTab(doc) {
   me.utils = new AwesomeTabUtils();
   reportError("getting visible places");
   let visiblePlaces = me.getVisiblePlaces();
-  let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 5);
+  let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   reportError("collecting tags");
   let collector = new TagCollector(currentPlaces, me.utils);
   let collectedTags = collector.getResults();
@@ -19,7 +19,7 @@ function AwesomeTab(doc) {
   //let rankedResults = ranker.getResults();
   let rankedResults2 = searcher2.getResults();
   reportError("showing results");
-  let builder = new Builder(rankedResults2, doc, me.utils);
+  let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
   builder.show();
   } catch (ex) {
     reportError(ex);
@@ -46,14 +46,20 @@ AwesomeTab.prototype.getVisiblePlaces = function() {
   let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
   let visibleTabs = gBrowser.visibleTabs;
   let places = {};
+  me.collectedTitles = {};
   visibleTabs.forEach(function(tab) {
+    if (tab.pinned) {
+      return;
+    }
     let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
     // reportError(uri);
-    me.utils.getData(["id"], {"url": uri}, "moz_places").forEach(function(p) {
-      if (p["id"] in places) {
-        places[p["id"]] += 1;
-      } else {
+    me.utils.getData(["id", "title"], {"url": uri}, "moz_places").forEach(function(p) {
+      if (!(p["id"] in places)) {
         places[p["id"]] = 1;
+      }
+
+      if (!(p["title"] in me.collectedTitles)) {
+        me.collectedTitles[p] = 1;
       }
     });
   });
