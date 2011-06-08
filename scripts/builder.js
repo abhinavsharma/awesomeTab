@@ -47,11 +47,14 @@ Builder.prototype.show = function() {
         reportError("fail " + JSON.stringify(placeInfo));
         return;
       }
+
+      /*
       let img = me.doc.createElement('img');
       img.style.height = '16px';
       img.style.width = '16px';
       img.style.paddingRight = '4px';
       img.src = PlacesUtils.favicons.getFaviconImageForPage(Utils.makeURI(placeInfo["url"])).spec;
+      */
 
       let link = me.doc.createElement('a');
       link.setAttribute('href', placeInfo["url"]);

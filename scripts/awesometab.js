@@ -10,15 +10,16 @@ function AwesomeTab(doc) {
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
-  let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
+  //let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
   let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
 
-  let searchResults = searcher.getResults();
+  //let searchResults = searcher.getResults();
   reportError("ranking tags");
-  let ranker = new TagRanker(searchResults, me.utils);
-  let rankedResults = ranker.getResults();
+  //let ranker = new TagRanker(searchResults, me.utils);
+  //let rankedResults = ranker.getResults();
+  let rankedResults2 = searcher2.getResults();
   reportError("showing results");
-  let builder = new Builder(rankedResults, doc, me.utils);
+  let builder = new Builder(rankedResults2, doc, me.utils);
   builder.show();
   } catch (ex) {
     reportError(ex);
