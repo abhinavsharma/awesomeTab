@@ -11,6 +11,8 @@ function AwesomeTab(doc) {
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
   let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
+  let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
+
   let searchResults = searcher.getResults();
   reportError("ranking tags");
   let ranker = new TagRanker(searchResults, me.utils);

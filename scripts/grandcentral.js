@@ -1,6 +1,7 @@
 function SiteCentral() {
   let me = this;
   me.utils = new AwesomeTabUtils();
+  me.re_bad_substrings = new RegExp(/(\/post\/|\/article\/)/g);
 }
 
 SiteCentral.prototype.isHub = function(placeId) {
@@ -18,6 +19,7 @@ SiteCentral.prototype.isHub = function(placeId) {
  * to be a hub quickly.
  */
 SiteCentral.prototype.isURLHub = function(url) {
+  let me = this;
   if (!url) {
     return true;
   }
@@ -36,6 +38,10 @@ SiteCentral.prototype.isURLHub = function(url) {
     reportError(url + "TOO LONG");
     return false
   }
+  
+  if (me.re_bad_substrings.test(url)) {
+    return false;
+  }
 
   let r1 = url.match(/[0-9]+/g);
   if (r1 && !r1.reduce(function(p,c,i,a) {
@@ -50,7 +56,7 @@ SiteCentral.prototype.isURLHub = function(url) {
     return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
   }
   if (!splitURL.reduce(function(p,c){
-        return (p && c.length < 40);
+        return (p && c.length < 40 && c.split(/[\-\_]/g).length < 3);
       }, true)) {
     reportError(url + "has component over 40 chars");
     return false;
