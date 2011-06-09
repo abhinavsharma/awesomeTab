@@ -4,23 +4,32 @@ function AwesomeTab(doc, utils, central, tagger) {
   me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");
+  let d = new Date();
+  let t1 = d.getTime();
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
-  reportError("collecting tags");
-  reportError(JSON.stringify(currentPlaces));
+  let t2 = d.getTime();
   let collector = new TagCollector(currentPlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
-  reportError("searching tags");
-  //let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
+  let t3 = d.getTime();
   let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
-  let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
-
   let rankedResults1 = searcher1.getResults();
+  let t4 = d.getTime();
+  let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults2 = searcher2.getResults();
+  let t5 = d.getTime();
   reportError("showing results");
   let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
   builder.show();
+  let t6 = d.getTime();
+
+  reportError("getting visible places: " + (t1));
+  reportError("collecting tags: " + (t2));
+  reportError("bookmark searcher: " + (t4 - t3));
+  reportError("all searcher: " + (t5 - t4));
+  reportError("display: " + (t6 - t5));
+
   } catch (ex) {
     reportError(JSON.stringify(ex));
   }

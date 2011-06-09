@@ -18,10 +18,6 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils, central
   me.tfMap = {};
   me.central = central;
   me.createIDFMap();
-  me.avgdl = me.utils.getDataQuery("SELECT AVG(length(title)) as a FROM moz_places WHERE length(title) > 0", 
-    {}, ["a"])[0]["a"];
-  me.avgdl = me.avgdl > 0 ? me.avgdl : 42; // no joke this is about the average from random sampling
-  reportError(me.avgdl);
   me.searchQuery();
 }
 
@@ -62,7 +58,6 @@ AllSearch.prototype.searchQuery = function() {
   for (let tag in me.collectedTags) {
     mS.push("(title LIKE :str" + i + ") as v" + i);
     kS.push(":idf" + i + " * " + 
-      //"((3 * :tf"+i+") / (2*(1 - 0.75 + 0.75 * (length(title)/:avgdl)) + :tf"+i+")) * "+ // Okapi proper
       "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
       "(title LIKE :str" + i + ")");
     tS.push("v"+i);
@@ -72,7 +67,6 @@ AllSearch.prototype.searchQuery = function() {
     params["tf"+i] = me.tfMap[tag];
     i++;
   }
-  //params["avgdl"] = me.avgdl;
   iSelect = iS.concat(mS).join(',') + "," + kS.join('+') + " as score";
   let iCond = "visit_count > 2 AND length(title) > 0 AND score > 0";
   let query = "SELECT " + iSelect + " FROM moz_places WHERE " + iCond + " ORDER BY score DESC";
@@ -94,6 +88,8 @@ AllSearch.prototype.searchQuery = function() {
       "bookmarked": true,
       "hub": me.central.isHub(data.id),
       "tags": tags,
+      "title": data.title,
+      "url": data.url,
     }
   });
   reportError(JSON.stringify(me.ranks));
