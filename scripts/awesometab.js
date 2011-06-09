@@ -1,4 +1,4 @@
-function AwesomeTab(doc, utils) {
+function AwesomeTab(doc, utils, central, tagger) {
   let me = this;
   try {
   me.utils = utils;
@@ -7,7 +7,7 @@ function AwesomeTab(doc, utils) {
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   reportError("collecting tags");
-  let collector = new TagCollector(currentPlaces, me.utils, me.pos);
+  let collector = new TagCollector(currentPlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
