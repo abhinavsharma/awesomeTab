@@ -3,6 +3,7 @@ function Builder(rankedResults, doc, utils, collectedTitles) {
   me.doc = doc;
   me.utils = utils;
   me.collectedTitles = collectedTitles;
+  me.rankedResults = rankedResults;
   me.results = {
     "bThT": [],
     "bThF": [],
@@ -54,11 +55,15 @@ Builder.prototype.show = function() {
         reportError("fail " + JSON.stringify(placeInfo));
         return;
       }
-
-      if (placeInfo["title"] in shownTitles || placeInfo["title"] in me.collectedTitles) {
+      let title = me.rankedResults[placeId]["title"];
+      let url = me.rankedResults[placeId]["url"];
+      if (!title || !url) {
+        return;
+      }
+      if (title in shownTitles || title in me.collectedTitles) {
         return;
       } else {
-        shownTitles[placeInfo["title"]] = 1;
+        shownTitles[title] = 1;
       }
 
       /*
@@ -76,10 +81,10 @@ Builder.prototype.show = function() {
       bmImg.style.visibility = me.utils.isBookmarked(placeId) ? 'visible' : 'hidden';
 
       let link = me.doc.createElement('a');
-      link.setAttribute('href', placeInfo["url"]);
-      let bmTitle = me.utils.getBookmarkTitleFromURL(placeInfo["url"]);
+      link.setAttribute('href', url);
+      let bmTitle = me.utils.getBookmarkTitleFromURL(url);
 
-      link.innerHTML = (bmTitle ? bmTitle : placeInfo["title"]).slice(0,75);
+      link.innerHTML = (bmTitle ? bmTitle : title.slice(0,75));
 
       let row = me.doc.createElement('tr');
       let cell = me.doc.createElement('td');
