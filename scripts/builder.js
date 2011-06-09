@@ -50,11 +50,6 @@ Builder.prototype.show = function() {
       let frecency = a[2];
       let tags = a[3];
 
-      let placeInfo = me.utils.getData(["url", "title"], {"id":placeId}, "moz_places");
-      if (!placeInfo || placeInfo.length == 0 || !(placeInfo = placeInfo[0]) || !placeInfo["title"] || !placeInfo["url"]) {
-        reportError("fail " + JSON.stringify(placeInfo));
-        return;
-      }
       let title = me.rankedResults[placeId]["title"];
       let url = me.rankedResults[placeId]["url"];
       if (!title || !url) {

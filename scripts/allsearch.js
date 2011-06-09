@@ -55,7 +55,9 @@ AllSearch.prototype.searchQuery = function() {
   let mS = [], kS = [], tS = [];
   let params = {};
   let allTags = {};
+  let hasTag = false;
   for (let tag in me.collectedTags) {
+    hasTag = true;
     mS.push("(title LIKE :str" + i + ") as v" + i);
     kS.push(":idf" + i + " * " + 
       "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
@@ -66,6 +68,9 @@ AllSearch.prototype.searchQuery = function() {
     params["idf"+i] = me.idfMap[tag] ;
     params["tf"+i] = me.tfMap[tag];
     i++;
+  }
+  if (!hasTag) {
+    return;
   }
   iSelect = iS.concat(mS).join(',') + "," + kS.join('+') + " as score";
   let iCond = "visit_count > 2 AND length(title) > 0 AND score > 0";

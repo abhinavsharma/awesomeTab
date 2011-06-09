@@ -15,7 +15,6 @@ TagCollector.prototype.getResults = function() {
   let me = this;
   let clusterMap = me.clusterByHost();
   let collectedTags = me.collectTags(clusterMap);
-  reportError(JSON.stringify(me.pos.tag(Object.keys(collectedTags))));
   reportError(JSON.stringify(collectedTags));
   return collectedTags;
 }
@@ -56,6 +55,18 @@ TagCollector.prototype.rejectTag = function(tag) {
   return (tag in STOPWORDS);
 }
 
+TagCollector.prototype.filterPOS = function(tags) {
+  let me = this;
+  let tagged = me.pos.tag(tags);
+  let filtered = [];
+  for (let i = 0; i < tagged.length; i++) {
+    if(RE_NOUN_VERB.test(tagged[i][1])) {
+      filtered.push(tagged[i][0]);
+    }
+  }
+  return filtered;
+}
+
 TagCollector.prototype.collectTags = function(clusterMap) {
   let me = this;
   let allTags = {};
@@ -65,10 +76,18 @@ TagCollector.prototype.collectTags = function(clusterMap) {
       let placeId = places[p];
       let titleTags = me.getTitleTags(placeId);
       let bookmarkTags = me.getTagsFromPlace(placeId);
+      reportError(J(titleTags) + J(bookmarkTags));
+      if (bookmarkTags)  
+        reportError(J(me.pos.tag(bookmarkTags)));
+      if (titleTags)
+        reportError(J(me.pos.tag(titleTags)));
+
       if (bookmarkTags && bookmarkTags.length > 0) {
+        bookmarkTags = me.filterPOS(bookmarkTags);
         for (let i = 0; i < bookmarkTags.length; i++) {
           let bmTag = bookmarkTags[i];
           if (me.rejectTag(bmTag, 1)) {
+            reportError("CONTINUE");
             continue;
           }
           if (!(bmTag in allTags)) {
@@ -88,9 +107,11 @@ TagCollector.prototype.collectTags = function(clusterMap) {
         }
       } else {
         if (titleTags && titleTags.length > 0) {
+          titleTags = me.filterPOS(titleTags);
           for (let i = 0; i < titleTags.length; i++) {
             let titleTag = titleTags[i];
             if (me.rejectTag(titleTag, 2)) {
+              reportError("CONTINUE");
               continue;
             }
             if (!(titleTag in allTags)) {
@@ -110,6 +131,7 @@ TagCollector.prototype.collectTags = function(clusterMap) {
       }
     }
   }
+  reportError("ALL TAGS: " + J(allTags));
   return allTags;
 }
 

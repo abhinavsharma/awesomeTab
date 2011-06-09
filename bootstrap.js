@@ -65,6 +65,8 @@ const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};
 
 /* some useful regular expressions */
+RE_NOUN_VERB = new RegExp(/(^NN)|(^VB)/);
+
 
 /**
  * Synchronously query with an async statement fetching results by name
