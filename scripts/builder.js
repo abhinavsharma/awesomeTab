@@ -16,11 +16,11 @@ function Builder(rankedResults, doc, utils, collectedTitles) {
     let frecency = place.frecency ? place.frecency : 0;
     if (place.bookmarked && place.hub) {
       me.results["bThT"].push([placeId, score, frecency, tags]);
-    } else if (place.bookmarked && !place.hub) {
+    } else if (DEBUG && place.bookmarked && !place.hub) {
       me.results["bThF"].push([placeId, score, frecency, tags]);
     } else if (!place.bookmarked && place.hub) {
       me.results["bFhT"].push([placeId, score, frecency, tags]);
-    } else {
+    } else if (DEBUG){
       me.results["bFhF"].push([placeId, score, frecency, tags]);
     }
   };
@@ -47,7 +47,7 @@ Builder.prototype.show = function() {
       let placeId = a[0];
       let score = a[1];
       let frecency = a[2];
-      let tags = a[3].map(function(d){return d[0]});
+      let tags = a[3];
 
       let placeInfo = me.utils.getData(["url", "title"], {"id":placeId}, "moz_places");
       if (!placeInfo || placeInfo.length == 0 || !(placeInfo = placeInfo[0]) || !placeInfo["title"] || !placeInfo["url"]) {

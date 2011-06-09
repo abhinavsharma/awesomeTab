@@ -1,8 +1,9 @@
-function TagCollector(currentPlaces, utils) {
+function TagCollector(currentPlaces, utils, pos) {
   let me = this;
   reportError("incoming open uri: " + JSON.stringify(currentPlaces));
   me.currentPlaces = currentPlaces;
   me.utils = utils;
+  me.pos = pos;
   me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
                   .getService(Ci.nsITaggingService);
   me.newURI = Cc["@mozilla.org/network/io-service;1"]
@@ -14,6 +15,7 @@ TagCollector.prototype.getResults = function() {
   let me = this;
   let clusterMap = me.clusterByHost();
   let collectedTags = me.collectTags(clusterMap);
+  reportError(JSON.stringify(me.pos.tag(Object.keys(collectedTags))));
   reportError(JSON.stringify(collectedTags));
   return collectedTags;
 }

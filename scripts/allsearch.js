@@ -86,7 +86,7 @@ AllSearch.prototype.searchQuery = function() {
     }
     let tags = [];
     tS.forEach(function(i) {
-      if (data[i] == 1) tags.push([allTags[i], true, 0.1, me.idfMap[allTags[i]]]);
+      if (data[i] == 1) tags.push(allTags[i]);
     });
     me.ranks[data.id] = {
       "score": data.score,

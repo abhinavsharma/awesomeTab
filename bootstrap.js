@@ -42,7 +42,19 @@ Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://services-sync/util.js");
 
-AWESOMETAB_SCRIPTS = ["awesometab","utils","collector","searcher","ranker","builder","grandcentral","allsearch","stop"];
+AWESOMETAB_SCRIPTS = [
+  "awesometab",
+  "utils",
+  "collector",
+  "searcher",
+  "ranker",
+  "builder",
+  "grandcentral",
+  "allsearch",
+  "stop",
+  "bmsearch",
+  "pos",
+];
 
 const global = this;
 const DEBUG = true;

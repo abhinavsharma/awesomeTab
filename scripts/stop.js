@@ -440,4 +440,7 @@ STOPWORDS = {
   "search" : 1,
   "official": 1,
   "site": 1,
+  "download": 1,
+  "account": 1,
+  "people": 1,
 }

@@ -2,21 +2,24 @@ function AwesomeTab(doc) {
   let me = this;
   try {
   me.utils = new AwesomeTabUtils();
+  me.pos = new POSTagger();
   reportError("getting visible places");
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   reportError("collecting tags");
-  let collector = new TagCollector(currentPlaces, me.utils);
+  let collector = new TagCollector(currentPlaces, me.utils, me.pos);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
   //let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
+  let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
   let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
 
   //let searchResults = searcher.getResults();
   reportError("ranking tags");
   //let ranker = new TagRanker(searchResults, me.utils);
   //let rankedResults = ranker.getResults();
+  let rankedResults1 = searcher1.getResults();
   let rankedResults2 = searcher2.getResults();
   reportError("showing results");
   let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
