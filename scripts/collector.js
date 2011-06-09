@@ -28,25 +28,13 @@ TagCollector.prototype.getHosts = function() {
 /* returns { rev_host -> [placeId] } map */
 TagCollector.prototype.clusterByHost = function() {
   let me = this;
-
-  function getPlaceIdHostMap() {
-    let condition = me.currentPlaces.join(" OR ");
-    let query = "SELECT id, rev_host FROM moz_places WHERE :condition";
-    let revHostData = me.utils.getDataQuery(query, {
-      "condition": condition,
-    }, ["id", "rev_host"]);
-    let revMap = {};
-    revHostData.forEach(function ({id, rev_host}) { revMap[id] = rev_host });
-    return revMap;
-  }
-
   let resultMap = {};
   me.allHosts = [];
-  let placeHostMap = getPlaceIdHostMap();
-  me.currentPlaces.forEach(function(placeId) {
-    let revHost = placeHostMap[placeId];
+  reportError(JSON.stringify(me.currentPlaces));
+  for (let placeId in me.currentPlaces) {
+    let revHost = me.currentPlaces[placeId]["rev_host"];
     if (revHost.length < 3) {
-      return;
+      continue;
     }
     if (!(revHost in resultMap)) {
       me.allHosts.push(revHost);
@@ -54,22 +42,34 @@ TagCollector.prototype.clusterByHost = function() {
     } else {
       resultMap[revHost].push(placeId);
     }
-  });
+  }
   reportError("returing clustered map: " + JSON.stringify(resultMap));
   return resultMap;
 };
+
+/*
+ * Type 1:  tag from bookmark tag
+ * Type 2: tag from title
+ * TOD: use POS tagger here.
+ */
+TagCollector.prototype.rejectTag = function(tag) {
+  return (tag in STOPWORDS);
+}
 
 TagCollector.prototype.collectTags = function(clusterMap) {
   let me = this;
   let allTags = {};
   for (let revHost in clusterMap) {
-    clusterMap[revHost].forEach(function (placeId) {
+    let places = clusterMap[revHost];
+    for (let p = 0; p < places.length; p++) {
+      let placeId = places[p];
       let titleTags = me.getTitleTags(placeId);
       let bookmarkTags = me.getTagsFromPlace(placeId);
       if (bookmarkTags && bookmarkTags.length > 0) {
-        bookmarkTags.forEach(function (bmTag) {
-          if (bmTag in STOPWORDS) {
-            return;
+        for (let i = 0; i < bookmarkTags.length; i++) {
+          let bmTag = bookmarkTags[i];
+          if (me.rejectTag(bmTag, 1)) {
+            continue;
           }
           if (!(bmTag in allTags)) {
             allTags[bmTag] = {
@@ -85,12 +85,13 @@ TagCollector.prototype.collectTags = function(clusterMap) {
             resDict["bookmarked"] = true;
             allTags[bmTag] = resDict;
           }
-        });
+        }
       } else {
         if (titleTags && titleTags.length > 0) {
-          titleTags.forEach(function (titleTag) {
-            if (titleTag in STOPWORDS) {
-              return;
+          for (let i = 0; i < titleTags.length; i++) {
+            let titleTag = titleTags[i];
+            if (me.rejectTag(titleTag, 2)) {
+              continue;
             }
             if (!(titleTag in allTags)) {
               allTags[titleTag] = {
@@ -104,10 +105,10 @@ TagCollector.prototype.collectTags = function(clusterMap) {
               }
               allTags[titleTag] = resDict;
             }
-          });
+          }
         }
       }
-    });
+    }
   }
   return allTags;
 }
@@ -118,11 +119,7 @@ TagCollector.prototype.collectTags = function(clusterMap) {
  */
 TagCollector.prototype.getTitleTags = function(placeId) {
   let me = this;
-  let placeInfo = me.utils.getData(["title"], {"id":placeId}, "moz_places");
-  if (placeInfo.length == 0 || !placeInfo[0]["title"]) {
-    return;
-  }
-  let title = placeInfo[0]["title"];
+  let title = me.currentPlaces[placeId]["title"];
   return title.toLowerCase().replace(/[\|\_]/).match(/[a-z]+/g);
 }
 

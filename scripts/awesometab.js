@@ -7,6 +7,7 @@ function AwesomeTab(doc, utils, central, tagger) {
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   reportError("collecting tags");
+  reportError(JSON.stringify(currentPlaces));
   let collector = new TagCollector(currentPlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
@@ -35,8 +36,12 @@ AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let params = {
   }
   let data =  me.utils.getDataQuery(sqlQuery, params, ["place_id"])
-  reportError(JSON.stringify(data));
-  return data.map(function({place_id}) {return place_id;})
+  let lastKPlaces = {};
+  for (let i = 0; i < data.length; i++) {
+    let placeId = data[i]["place_id"];
+    lastKPlaces[placeId] = visiblePlaces[placeId];
+  }
+  return lastKPlaces;
 };
 
 
@@ -49,7 +54,7 @@ AwesomeTab.prototype.getVisiblePlaces = function() {
   for (let i = 0; i < visibleTabs.length; i++) {
     let tab = visibleTabs[i];
     if (tab.pinned) {
-      return;
+      continue;
     }
     let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
     // reportError(uri);
@@ -58,7 +63,7 @@ AwesomeTab.prototype.getVisiblePlaces = function() {
       }, "moz_places")
     for (let j = 0; j < placesData.length; j++) {
       let place = placesData[j];
-      places[place["id"]] = placesData[j]["title"];
+      places[place["id"]] = place;
       me.collectedTitles[place["title"]] = placesData[j]["title"];
     }
   }

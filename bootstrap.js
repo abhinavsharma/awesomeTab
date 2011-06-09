@@ -61,7 +61,10 @@ AWESOMETAB_SCRIPTS = [
 
 const global = this;
 const DEBUG = true;
-const reportError = DEBUG ? Cu.reportError : function(err) {}
+const reportError = DEBUG ? Cu.reportError : function() {};
+const J = DEBUG ? JSON.stringify : function() {return ""};
+
+/* some useful regular expressions */
 
 /**
  * Synchronously query with an async statement fetching results by name
