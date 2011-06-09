@@ -284,8 +284,7 @@ function setupListener(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let utils = new AwesomeTabUtils();
-          let dashboard = new AwesomeTab(doc, utils);
+          let dashboard = new AwesomeTab(doc, global.utils);
         }, true);
 
       }
@@ -305,6 +304,7 @@ function startup(data, reason) {
       Services.scriptloader.loadSubScript(fileURI.spec, global);
     });
     global.aboutURI = addon.getResourceURI("content/awesometab.html");
+    global.utils = new AwesomeTabUtils();
     watchWindows(setupListener);
   });
 }
