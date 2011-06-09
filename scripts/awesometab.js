@@ -12,13 +12,9 @@ function AwesomeTab(doc, utils, central, tagger) {
   let collectedHosts = collector.getHosts();
   reportError("searching tags");
   //let searcher = new Searcher(collectedTags, collectedHosts, visiblePlaces, me.utils);
-  let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
-  let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils);
+  let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
+  let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
 
-  //let searchResults = searcher.getResults();
-  reportError("ranking tags");
-  //let ranker = new TagRanker(searchResults, me.utils);
-  //let rankedResults = ranker.getResults();
   let rankedResults1 = searcher1.getResults();
   let rankedResults2 = searcher2.getResults();
   reportError("showing results");
@@ -50,22 +46,21 @@ AwesomeTab.prototype.getVisiblePlaces = function() {
   let visibleTabs = gBrowser.visibleTabs;
   let places = {};
   me.collectedTitles = {};
-  visibleTabs.forEach(function(tab) {
+  for (let i = 0; i < visibleTabs.length; i++) {
+    let tab = visibleTabs[i];
     if (tab.pinned) {
       return;
     }
     let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
     // reportError(uri);
-    me.utils.getData(["id", "title"], {"url": uri}, "moz_places").forEach(function(p) {
-      if (!(p["id"] in places)) {
-        places[p["id"]] = 1;
-      }
-
-      if (!(p["title"] in me.collectedTitles)) {
-        me.collectedTitles[p] = 1;
-      }
-    });
-  });
+    let placesData = me.utils.getData(["id", "title", "url", "rev_host", "frecency"], {
+        "url": uri
+      }, "moz_places")
+    for (let j = 0; j < placesData.length; j++) {
+      let place = placesData[j];
+      places[place["id"]] = placesData[j]["title"];
+      me.collectedTitles[place["title"]] = placesData[j]["title"];
+    }
+  }
   return places;
 }
-

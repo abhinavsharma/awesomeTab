@@ -3,7 +3,7 @@
  * Does searching + ranking in moz_places
  */
 
-function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
+function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils, central) {
   let me = this;
   me.utils = utils;
   me.excludedPlaces = excludedPlaces;
@@ -16,7 +16,7 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils) {
   me.MAX_PLACES = 1000;
   me.idfMap = {};
   me.tfMap = {};
-  me.central = new SiteCentral();
+  me.central = central;
   me.createIDFMap();
   me.avgdl = me.utils.getDataQuery("SELECT AVG(length(title)) as a FROM moz_places WHERE length(title) > 0", 
     {}, ["a"])[0]["a"];
