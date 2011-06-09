@@ -32,6 +32,10 @@ SiteCentral.prototype.isURLHub = function(url) {
     }
   }
 
+  if (RE_HOME_URL.test(url)) {
+    return true;
+  }
+
   url = url[0];
   let splitURL = url.split('/');
 
@@ -42,7 +46,7 @@ SiteCentral.prototype.isURLHub = function(url) {
     return false
   }
   
-  if (me.re_bad_substrings.test(url) | me.re_is_num.test(url)) {
+  if (RE_FAIL_URL.test(url)) {
     return false;
   }
 

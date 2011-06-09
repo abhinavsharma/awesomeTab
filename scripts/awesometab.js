@@ -1,6 +1,5 @@
 function AwesomeTab(doc, utils, central, tagger) {
   let me = this;
-  try {
   me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");
@@ -20,8 +19,11 @@ function AwesomeTab(doc, utils, central, tagger) {
   let rankedResults2 = searcher2.getResults();
   let t5 = d.getTime();
   reportError("showing results");
-  let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
-  builder.show();
+
+  //let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
+  let mixer = new Mixer(searcher1.getResults(), searcher2.getResults(), me.collectedTitles, me.utils);
+  let disp = new Display(mixer.getMixed(), doc);
+  //builder.show();
   let t6 = d.getTime();
 
   reportError("getting visible places: " + (t1));
@@ -30,9 +32,6 @@ function AwesomeTab(doc, utils, central, tagger) {
   reportError("all searcher: " + (t5 - t4));
   reportError("display: " + (t6 - t5));
 
-  } catch (ex) {
-    reportError(JSON.stringify(ex));
-  }
 }
 
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {

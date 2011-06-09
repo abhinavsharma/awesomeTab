@@ -90,7 +90,7 @@ AllSearch.prototype.searchQuery = function() {
     me.ranks[data.id] = {
       "score": data.score,
       "frecency": data.frecency,
-      "bookmarked": true,
+      "bookmarked": me.utils.isBookmarked(data.id),
       "hub": me.central.isHub(data.id),
       "tags": tags,
       "title": data.title,
