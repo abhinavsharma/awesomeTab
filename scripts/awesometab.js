@@ -1,7 +1,7 @@
-function AwesomeTab(doc) {
+function AwesomeTab(doc, utils) {
   let me = this;
   try {
-  me.utils = new AwesomeTabUtils();
+  me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");
   let visiblePlaces = me.getVisiblePlaces();

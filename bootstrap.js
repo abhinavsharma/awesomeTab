@@ -19,6 +19,7 @@
  *
  * Contributor(s):
  *    Abhinav Sharma <asharma@mozilla.com>
+ *    Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -34,6 +35,7 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+/* alias for quick access */
 const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 
 /* imports */
@@ -42,6 +44,7 @@ Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://services-sync/util.js");
 
+/* Javascript files to import from scripts/ */
 AWESOMETAB_SCRIPTS = [
   "awesometab",
   "utils",
@@ -281,7 +284,8 @@ function setupListener(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new AwesomeTab(doc);
+          let utils = new AwesomeTabUtils();
+          let dashboard = new AwesomeTab(doc, utils);
         }, true);
 
       }

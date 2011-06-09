@@ -432,6 +432,7 @@ STOPWORDS = {
   "internet" : 1,
   "world" : 1,
   "web" : 1,
+  "www" : 1,
   "com": 1,
   "net": 1,
   "org" : 1,
@@ -443,4 +444,5 @@ STOPWORDS = {
   "download": 1,
   "account": 1,
   "people": 1,
+  "home": 1,
 }
