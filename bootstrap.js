@@ -65,7 +65,7 @@ const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};
 
 /* some useful regular expressions */
-RE_NOUN_VERB = new RegExp(/(^NN)|(^VB)/);
+RE_NOUN_VERB = new RegExp(/(^NN)|(^VB)|(^JJ)/);
 
 /*http{s}://<anything goes here>{/} types of URLs are good */
 RE_HOME_URL = new RegExp(/^https{0,1}:\/\/[a-zA-Z0-9\.\-\_]+\/{0,1}$/);
