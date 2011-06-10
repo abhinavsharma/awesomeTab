@@ -40,7 +40,7 @@ TagCollector.prototype.collectIncremental = function() {
     let url = me.currentPlaces[placeId]["url"];
     let revHost = me.currentPlaces[placeId]["rev_host"];
     let tagBuffer = {};
-    let titleTags = me.getTitleTags(placeId);
+    let titleTags = me.filterPOS(me.getTitleTags(placeId));
     let bookmarkTags = me.getTagsFromPlace(placeId);
 
     if (!me.utils.isValidURL(url)) {
@@ -142,7 +142,7 @@ TagCollector.prototype.filterPOS = function(tags) {
   let tagged = me.pos.tag(tags);
   let filtered = [];
   for (let i = 0; i < tagged.length; i++) {
-    if(RE_NOUN_VERB.test(tagged[i][1]) && !(tagged[i][1] in STOPWORDS)) {
+    if(RE_NOUN_VERB.test(tagged[i][1]) && !(tagged[i][0] in STOPWORDS)) {
       filtered.push(tagged[i][0]);
     }
   }
