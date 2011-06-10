@@ -11,8 +11,90 @@ function TagCollector(currentPlaces, utils, pos) {
 
 }
 
+TagCollector.prototype.collectIncremental = function() {
+  let me = this;
+  let tagMap = {};
+  
+  function mergeBuffer(tB) {
+    reportError("merging: " + J(tagMap) + J(tB));
+    for (let tag in tB) {
+      if (tag in tagMap) {
+        let newHost = tB[tag]["hosts"][0];
+        let hosts = tagMap[tag]["hosts"];
+        let bookmarked = tagMap[tag]["bookmarked"];
+        let count = tagMap[tag]["count"];
+        tagMap[tag] = {
+          "hosts": (hosts.indexOf(newHost) < 0 ? [hosts.push(newHost), hosts][1]: hosts),
+          "bookmarked": bookmarked || tB[tag]["bookmarked"],
+          "count" : count + tB[tag]["count"],
+        }
+      } else {
+        tagMap[tag] = tB[tag];
+      }
+    }
+  }
+
+  let i = 0;
+  for (let placeId in me.currentPlaces) {
+    let breakNow = !(i == 0);
+    let url = me.currentPlaces[placeId]["url"];
+    let revHost = me.currentPlaces[placeId]["rev_host"];
+    let tagBuffer = {};
+    let titleTags = me.getTitleTags(placeId);
+    let bookmarkTags = me.getTagsFromPlace(placeId);
+
+    if (!me.utils.isValidURL(url)) {
+      continue;
+    }
+
+    for (let i = 0; bookmarkTags && i < bookmarkTags.length; i++) {
+      let tag = bookmarkTags[i];
+      reportError("TAG: " + tag);
+      if (tag in tagMap) {
+        breakNow = false;
+      }
+      tagBuffer[tag] = {
+        "hosts": [revHost],
+        "bookmarked": true,
+        "count": 1,
+      };
+    }
+
+    for (let i = 0; titleTags && i < titleTags.length; i++) {
+      let tag = titleTags[i];
+      reportError("TAG: " + tag);
+      if (tag in tagMap) {
+        breakNow = false;
+      }
+
+      if (tag in tagBuffer) {
+        tagBuffer[tag]["count"] += 1;
+      } else {
+        tagBuffer[tag] = {
+          "hosts": [revHost],
+          "bookmarked" : false,
+          "count": 1,
+        };
+      }
+    }
+
+    if (breakNow) {
+        break;
+    } else {
+      i++;
+      mergeBuffer(tagBuffer);
+    }
+
+  }
+
+  return tagMap;
+};
+
 TagCollector.prototype.getResults = function() {
   let me = this;
+  let result = me.collectIncremental();
+  reportError(J(result));
+  return result;
   let clusterMap = me.clusterByHost();
   let collectedTags = me.collectTags(clusterMap);
   reportError(JSON.stringify(collectedTags));
@@ -60,7 +142,7 @@ TagCollector.prototype.filterPOS = function(tags) {
   let tagged = me.pos.tag(tags);
   let filtered = [];
   for (let i = 0; i < tagged.length; i++) {
-    if(RE_NOUN_VERB.test(tagged[i][1])) {
+    if(RE_NOUN_VERB.test(tagged[i][1]) && !(tagged[i][1] in STOPWORDS)) {
       filtered.push(tagged[i][0]);
     }
   }

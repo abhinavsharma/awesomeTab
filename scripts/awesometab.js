@@ -1,5 +1,6 @@
 function AwesomeTab(doc, utils, central, tagger) {
   let me = this;
+  // me.tester = new Tester();
   me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");
@@ -41,8 +42,7 @@ AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   }).join(" OR ");
   let sqlQuery = "SELECT place_id FROM moz_historyvisits WHERE " + condition +" GROUP BY "
     +"place_id ORDER BY id DESC LIMIT " + k;
-  let params = {
-  }
+  let params = {}
   let data =  me.utils.getDataQuery(sqlQuery, params, ["place_id"])
   let lastKPlaces = {};
   for (let i = 0; i < data.length; i++) {

@@ -172,3 +172,27 @@ AwesomeTabUtils.prototype.getCurrentTime = function(precision) {
   }[precision]);
 };
 
+function Set() {
+  let me = this;
+  me.set = {};
+}
+
+Set.prototype.add = function(elem) {
+  me.set[elem] = 1;
+}
+
+Set.prototype.union = function(s) {
+  let me =  this;
+  for (let e in s) {
+    me.set[e] = 1;
+  }
+}
+
+Set.prototype.intersection = function(s) {
+  let me = this;
+  for (let e in s) {
+    if (e in me.set) {
+      buffer[e] = s;
+    }
+  }
+}

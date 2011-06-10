@@ -95,3 +95,120 @@ SiteCentral.prototype.isHubFromMap = function(placeId) {
 function SessionCentral() {
   let me = this;
 }
+
+/*
+ * urlMap is assumed to have a {rev_host -> url structure;}
+ */
+function GrandCentral(urlMap, avgMap) {
+  let me = this;
+  me.trieMap = {};
+  me.placeMap = {};
+  me.hostMap = {};
+  me.avgMap = avgMap;
+  for (let revHost in urlMap) {
+    me.trieMap[revHost] = new URLTrie(urlMap[revHost], revHost, me);
+    me.trieMap[revHost].processTrie();
+  }
+}
+
+GrandCentral.prototype.isHub = function(placeId) {
+  let me = this;
+  let revHost = me.hostMap[placeId];
+  let url = me.placeMap[placeId];
+  return me.trieMap[revHost].isHub(url)
+};
+
+function URLTrie(urls, revHost,  central) {
+  let me = this;
+  me.splitMap = {};
+  me.central = central;
+  me.revHost = revHost;
+  me.trie = {
+    "v" : 0,
+    "c" : {},
+    "p" : null,
+  };
+  me.nodeList = [];
+
+  for (let i = 0; i < urls.length; i++) {
+    central.placeMap[urls[i]["id"]] = urls[i]["url"];
+    central.hostMap[urls[i]["id"]] = revHost;
+    me.addURL(urls[i]["url"], urls[i]["visit_count"]);
+  }
+  reportError(J(me.nodeList));
+  reportError(J(me.trie));
+  me.processTrie();
+  reportError(J(me.trie));
+}
+
+URLTrie.prototype.addURL = function(url, visitCount) {
+  let me = this;
+  let split = url.split(/(https{0,1}:\/\/)|(\/)|(\/{0,1}#\/{0,1})/)
+    .slice(4).filter(function (s) {
+      return (s && !(/^\/|#/).test(s));
+    });
+  let current = me.trie;
+  me.splitMap[url] = split;
+  let len = split.length;
+  for (let i = 0; i < len; i++) {
+    let str = split[i];
+    if (str in current.c) {
+      current = current.c[str];
+    } else {
+      current.c[str] = {
+        "v" : (i == len - 1 ? visitCount : 0),
+        "c" : {},
+      };
+      current = current.c[str];
+      me.nodeList.push(current);
+    }
+  }
+}
+
+/*
+ * Algorithm to process the trie and determine which nodes are hubs.
+ */
+URLTrie.prototype.processTrie = function() {
+  let me = this;
+  let current = me.trie.c;
+  
+  function hubbleBubble(node) {
+    let children = node.c, total = 0, n = 0;
+    let hasChildren = false;
+    for (let child in node.c) {
+      hasChildren = true;
+      total += node.c[child].v;
+      n += 1;
+    }
+    reportError("stats: current - " + node.v + "avg: " + total + "/"+n + "hasc: " + hasChildren);
+    if (hasChildren && total/n < node.v) {
+      node.h = true;
+    } else if (!hasChildren) {
+      node.h = (node.v > 5 * me.central.avgMap[me.revHost]); // TODO: think
+    } else {
+      node.h = false;
+    }
+  }
+  reportError(me.nodeList.length);
+  for (let i = 0; i < me.nodeList.length; i++) {
+    hubbleBubble(me.nodeList[i]);
+  }
+    
+};
+
+URLTrie.prototype.isHub = function(url) {
+  let me = this;
+  let split = me.splitMap[url];
+  let current = me.trie;
+  let isHub = false;
+  let current = me.trie.c;
+
+  /* traverse trie to evaluted node and pick up if its a host */
+  for (let i = 0; i < split.length; i++) {
+    if (split[i] in current) {
+      isHub = current[split[i]]["h"];
+      current = current[split[i]]["c"];
+    }
+  }
+  return isHub;
+}

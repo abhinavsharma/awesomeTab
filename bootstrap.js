@@ -57,10 +57,12 @@ AWESOMETAB_SCRIPTS = [
   "pos",
   "mixer",
   "display",
+  "tester",
 ];
 
 const global = this;
 const DEBUG = true;
+const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};
 
@@ -75,7 +77,7 @@ RE_HOME_URL = new RegExp(/^https{0,1}:\/\/[a-zA-Z0-9\.\-\_]+\/{0,1}$/);
  * 2. ends with a number like bla.com/2/ or bla.com/2
  * 3. has 8 or more consecutive numbers, ignoring slashes
  */
-RE_FAIL_URL = new RegExp(/(\/post\/|\/article\/)|(\/[0-9]+\/{0,1}$)|((\/*[0-9]){8,})/)
+RE_FAIL_URL = new RegExp(/(\/post\/|\/article\/)|([\/#][0-9]+\/{0,1}$)|((\/*[0-9]){8,})/)
 
 /**
  * Synchronously query with an async statement fetching results by name
