@@ -15,6 +15,7 @@ TagCollector.prototype.collectIncremental = function() {
   let me = this;
   let tagMap = {};
   
+  /* merges tags from a new place into ones collected so far if required */
   function mergeBuffer(tB) {
     reportError("merging: " + J(tagMap) + J(tB));
     for (let tag in tB) {
@@ -36,7 +37,7 @@ TagCollector.prototype.collectIncremental = function() {
 
   let i = 0;
   for (let placeId in me.currentPlaces) {
-    let breakNow = !(i == 0);
+    let breakNow = !(i == 0); // make an exception for the first place
     let url = me.currentPlaces[placeId]["url"];
     let revHost = me.currentPlaces[placeId]["rev_host"];
     let tagBuffer = {};
@@ -95,10 +96,12 @@ TagCollector.prototype.getResults = function() {
   let result = me.collectIncremental();
   reportError(J(result));
   return result;
+  /*
   let clusterMap = me.clusterByHost();
   let collectedTags = me.collectTags(clusterMap);
   reportError(JSON.stringify(collectedTags));
   return collectedTags;
+  */
 }
 
 TagCollector.prototype.getHosts = function() {
