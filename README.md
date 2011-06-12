@@ -4,7 +4,7 @@ awesomeTab for Firefox
 The Idea
 --------
 
-When you open a new tab in a browser, you see an empty page. awesomeTab is designed to replace that with a more useful page.
+Firefox currently does not use a "speed-dial" when you open a new tab. AwesomeTab explores extending that concept to use tabs currently open as context to help determine where you might want to go next.
 
 Features
 --------
