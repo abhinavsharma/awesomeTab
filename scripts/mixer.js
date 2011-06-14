@@ -64,9 +64,16 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
 
   placeArr.sort(function (p1, p2) {
     /* prioritize results from the bookmark search engine */
+    
     let bmDiff = p2["bmEngine"] - p1["bmEngine"];
     if (bmDiff != 0) {
       return bmDiff;
+    }
+
+    if (p1.bookmarked && !p2.bookmarked) {
+      return -1;
+    } else if (!p1.bookmarked && p2.bookmarked) {
+      return 1;
     }
 
     /* given that they are same engine, use scoring */

@@ -4,7 +4,7 @@ awesomeTab for Firefox
 The Idea
 --------
 
-Firefox currently does not use a "speed-dial" when you open a new tab. AwesomeTab explores extending that concept to use tabs currently open as context to help determine where you might want to go next.
+Firefox does not currently implement a "speed-dial" to help you get to popular websites quickly. AwesomeTab takes the idea of a "speed-dial" and extends it. It looks at the tabs you are currently browsing, and makes recommendations based on what you are currently viewing when you open a new tab. This is not meant to replace a speed-dial but instead supplement it. Also, it acts as a potential front end for developing a better search engine for Firefox history and other components.
 
 Features
 --------
@@ -12,32 +12,9 @@ Features
 Some useful feature that one might consider displaying on such a new tab page are:
 
 + Bookmarks similar to what pages are currently open.
-+ Pages (unbookmarked but 'frecent' that might be relevant)
-+ Consider looking at highlights from last page for reference (this is from the original concept)
++ Tagged bookmarks are gievn heavy preference
++ This is followed by a relevance score based on number of keywords matched
++ This is followed by frecency based ranking.
 
 
-Panorama
---------
 
-awesomeTab works much better when used together with Panorama. This is because if you have tabes grouped together, then awesomeTab decides based solely on the currently visible tabs. This makes the results more relevant.
-
-Reading
--------
-
-* [Aza Raskin on New Tabs](http://www.azarask.in/blog/post/new-tabs/)
-* [Firefox 3.1 Original Concept](http://www.azarask.in/blog/post/firefox-31-new-tab-spec/)
-* [awesomeTab Issue Tracking](https://github.com/abhinavsharma/awesomeTab/issues)
-* [Firefox Newtab Wiki](https://wiki.mozilla.org/Firefox/Projects/About:newtab)
-
-Software Design
-===============
-
-Design Overview
----------------
-
-awesomeTab is implemented as a restartless addon for Firefox. Version 0.1 runs completely off data already stored and tracked in the browser. In later versions, this might modify Firefox to store more user data inside of Firefox to improve user experience.
-
-Workflow
---------
-
-1. User opens new tab, create an awesomeTab instance.

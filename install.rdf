@@ -9,7 +9,7 @@
     <updateURL>https://people.mozilla.com/~asharma/awesomeTab/update.rdf</updateURL>
     <id>awesometab@abhinavsharma.me</id>
     <name>AwesomeTab</name>
-    <version>0.6</version>
+    <version>0.6.1</version>
 
     <bootstrap>true</bootstrap>
     <type>2</type>
