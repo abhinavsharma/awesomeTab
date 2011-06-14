@@ -10,13 +10,13 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
   
   try {
   var allCentral = new GrandCentral(allSearch, utils);
-  var bmCentral = new GrandCentral(bmSearch, utils);
+  //var bmCentral = new GrandCentral(bmSearch, utils);
   } catch (ex) {reportError(ex)}
   for (let placeId in bmSearch) {
     if (bmSearch["frecency"] < 100) {
       continue;
     }
-    bmSearch[placeId].hub = bmCentral.isCentral(placeId);
+    //bmSearch[placeId].hub = bmCentral.isCentral(placeId);
     let url = bmSearch[placeId]["url"];
     let placeTitle = bmSearch[placeId]["title"];
     let bmTitle = utils.getBookmarkTitleFromURL(url);
