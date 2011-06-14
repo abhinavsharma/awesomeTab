@@ -11,6 +11,7 @@ function Display(places, doc) {
         bookmarked = place.bookmarked,
         url = place.url,
         hub = place.hub,
+        bmEngine = place.bmEngine,
         tags = place.tags;
     
     if (!title || !url) {
@@ -46,7 +47,10 @@ function Display(places, doc) {
     let cell2 = doc.createElement('td');
     cell2.innerHTML = JSON.stringify(tags);
     let cell3 = doc.createElement('td');
-    cell3.innerHTML = score + " | " + frecency;
+    cell3.innerHTML = score + "<br />" + 
+                      frecency + "<br />" + 
+                      (hub ? "hub" :"nothub") + "<br />" + 
+                      (bmEngine ? "bme" : "nbm");
     let cell4 = doc.createElement('td');
     cell4.appendChild(bmImg);
 

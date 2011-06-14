@@ -4,6 +4,7 @@ function TagCollector(currentPlaces, utils, pos) {
   me.currentPlaces = currentPlaces;
   me.utils = utils;
   me.pos = pos;
+  me.allHosts = {};
   me.taggingSvc = Cc["@mozilla.org/browser/tagging-service;1"]
                   .getService(Ci.nsITaggingService);
   me.newURI = Cc["@mozilla.org/network/io-service;1"]
@@ -36,6 +37,11 @@ TagCollector.prototype.collectIncremental = function() {
   }
 
   let i = 0;
+
+  for (let placeId in me.currentPlaces) {
+    let host = me.currentPlaces[placeId]["rev_host"];
+    me.allHosts[host] = true;
+  }
   for (let placeId in me.currentPlaces) {
     let breakNow = !(i == 0); // make an exception for the first place
     let url = me.currentPlaces[placeId]["url"];

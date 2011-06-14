@@ -1,4 +1,4 @@
-function Mixer(bmSearch, allSearch, collectedTitles, utils) {
+function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
   let me = this;
 
   let includedTitles = {};
@@ -19,12 +19,14 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
     //bmSearch[placeId].hub = bmCentral.isCentral(placeId);
     let url = bmSearch[placeId]["url"];
     let placeTitle = bmSearch[placeId]["title"];
+    let revHost = bmSearch[placeId]["revHost"];
     let bmTitle = utils.getBookmarkTitleFromURL(url);
     bmTitle = bmTitle ? bmTitle : placeTitle;
     if (placeId in includedPlaces ||
         bmTitle in includedTitles || 
         bmTitle in collectedTitles ||
         placeTitle in includedTitles ||
+        revHost in collectedHosts ||
         placeTitle in collectedTitles) {
       continue;
     }
@@ -45,7 +47,9 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
     allSearch[placeId].hub = allCentral.isCentral(placeId);
     let url = allSearch[placeId]["url"];
     let placeTitle = allSearch[placeId]["title"];
+    let revHost = allSearch[placeId]["revHost"];
     if (placeId in includedPlaces ||
+        revHost in collectedHosts ||
         placeTitle in includedTitles ||
         placeTitle in collectedTitles) {
       continue;

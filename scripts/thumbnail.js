@@ -47,12 +47,8 @@ Thumbnailer.prototype.createDB = function() {
   if (result.length > 0) {
     return result[0]["id"];
   }
-
-  me.insertData({
-    "name": "labmonkey/thumbnail",
-  }, "moz_anno_attributes");
-
-  me.spinQuery(PlacesUtils.history.DBConnection, {
+  
+  spinQuery(PlacesUtils.history.DBConnection, {
     query: "INSERT INTO moz_anno_attributes (name) VALUES (:val)",
     params: {
       "val" : "labmonkey/thumbnail"
@@ -60,7 +56,7 @@ Thumbnailer.prototype.createDB = function() {
     names: [],
   });
   
-  result = me.spinQuery(PlacesUtils.history.DBConnection, {
+  result = spinQuery(PlacesUtils.history.DBConnection, {
     query: "SELECT id FROM moz_anno_attributes WHERE name = :name",
     params: {
       "name": "labmonkey/thumbnail",

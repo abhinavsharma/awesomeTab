@@ -58,10 +58,10 @@ AllSearch.prototype.searchQuery = function() {
   let hasTag = false;
   for (let tag in me.collectedTags) {
     hasTag = true;
-    mS.push("(title LIKE :stra" + i + " OR title LIKE :strb"+i+") as v" + i);
+    mS.push("(title LIKE :stra" + i + " AND title LIKE :strb"+i+") as v" + i);
     kS.push(":idf" + i + " * " + 
       "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
-      "(title LIKE :stra" + i + " OR title LIKE :strb" + i +")");
+      "(title LIKE :stra" + i + " AND title LIKE :strb" + i +")");
     tS.push("v"+i);
     allTags["v"+i] = tag;
     params["stra"+i] = "% " + tag + "%";
