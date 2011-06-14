@@ -11,6 +11,7 @@
 function AwesomeTab(doc, utils, central, tagger) {
   let me = this;
   //me.tester = new Tester();
+  try {
   me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");
@@ -42,7 +43,7 @@ function AwesomeTab(doc, utils, central, tagger) {
   reportError("bookmark searcher: " + (t4 - t3));
   reportError("all searcher: " + (t5 - t4));
   reportError("display: " + (t6 - t5));
-
+  } catch (ex) { reportError(ex) }
 }
 
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {

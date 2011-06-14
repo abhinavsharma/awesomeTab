@@ -47,6 +47,7 @@ Cu.import("resource://services-sync/util.js");
 /* Javascript files to import from scripts/ */
 AWESOMETAB_SCRIPTS = [
   "awesometab",
+  "thumbnail",
   "utils",
   "collector",
   "ranker",
@@ -61,10 +62,13 @@ AWESOMETAB_SCRIPTS = [
 ];
 
 const global = this;
+global.isInit = false;
+
 const DEBUG = true;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};
+
 
 /* some useful regular expressions */
 RE_NOUN_VERB = new RegExp(/(^NN)|(^VB)|(^JJ)/);
@@ -277,10 +281,18 @@ function unload(callback, container) {
   return removeUnloader;
 }
 
+function handlePageLoad(e) {
+  reportError("Handling a page load");
+  global.thumbnailer.handlePageLoad(e);
+}
+
 /**
  * Shift the window's main browser content down and right a bit
  */
 function setupListener(window) {
+
+  window.addEventListener("DOMContentLoaded", handlePageLoad, true);
+
   function change(obj, prop, val) {
     let orig = obj[prop];
     obj[prop] = typeof val == "function" ? val(orig) : val;
@@ -307,25 +319,41 @@ function setupListener(window) {
       return tab;
     };
   });
+  
+  unload(function() {
+    window.removeEventListener("DOMContentLoaded", handlePageLoad, true);
+  }, window);
+
+  
 }
 
 /**
  * Handle the add-on being activated on install/enable
  */
 function startup(data, reason) {
-  AddonManager.getAddonByID(data.id, function(addon) {
-    /* import scripts */
-    AWESOMETAB_SCRIPTS.forEach(function(fileName) {
-      let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
-      Services.scriptloader.loadSubScript(fileURI.spec, global);
-    });
-    global.aboutURI = addon.getResourceURI("content/awesometab.html");
-    global.central = new SiteCentral();
-    global.tagger = new POSTagger();
-    global.utils = new AwesomeTabUtils();
-    watchWindows(setupListener);
-  });
+  globalInit(data.id);
 }
+
+function globalInit(id) {
+  if (!global.isInit) {
+    AddonManager.getAddonByID(id, function(addon) {
+      /* import scripts */
+      AWESOMETAB_SCRIPTS.forEach(function(fileName) {
+        let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
+        Services.scriptloader.loadSubScript(fileURI.spec, global);
+      });
+      global.aboutURI = addon.getResourceURI("content/awesometab.html");
+      global.central = new SiteCentral();
+      global.tagger = new POSTagger();
+      global.utils = new AwesomeTabUtils();
+      global.thumbnailer = global.thumbnailer ? global.thumbnaler : new Thumbnailer();
+      watchWindows(setupListener);
+    }); 
+  }
+  global.isInit = true;
+
+}
+
 
 /**
  * Handle the add-on being deactivated on uninstall/disable
@@ -339,7 +367,9 @@ function shutdown(data, reason) {
 /**
  * Handle the add-on being installed
  */
-function install(data, reason) {}
+function install(data, reason) {
+  globalInit(data.id);
+}
 
 /**
  * Handle the add-on being uninstalled

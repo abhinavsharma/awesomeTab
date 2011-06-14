@@ -65,7 +65,7 @@ BookmarkSearch.prototype.searchQuery = function() {
       me.ranks[id] = {
         "score": me.idfMap[tag],
         "frecency": frecency,
-        "bookmarked": true,
+        "bookmarked": central.isHub(id),
         "hub": true, // TODO, this is temp
         "tags": [tag],
         "title": title, 
