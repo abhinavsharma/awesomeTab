@@ -50,7 +50,7 @@ TagCollector.prototype.collectIncremental = function() {
 
     for (let i = 0; bookmarkTags && i < bookmarkTags.length; i++) {
       let tag = bookmarkTags[i];
-      reportError("TAG: " + tag);
+      reportError("BM TAG: " + tag);
       if (tag in tagMap) {
         breakNow = false;
       }
@@ -63,7 +63,7 @@ TagCollector.prototype.collectIncremental = function() {
 
     for (let i = 0; titleTags && i < titleTags.length; i++) {
       let tag = titleTags[i];
-      reportError("TAG: " + tag);
+      reportError("TITLE TAG: " + tag);
       if (tag in tagMap) {
         breakNow = false;
       }

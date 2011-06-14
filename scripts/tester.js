@@ -30,12 +30,10 @@ Tester.prototype.GrandCentralTest = function() {
     "moc.elgoog.www" : 1.3,
     "moc.koobecaf.www" : 1.2,
   }
-  try {
+
   let central = new GrandCentral(urlMap, avgMap);
-  } catch (ex) {reportError(ex)}
   for (let i = 1; i <= 10; i++) {
-    
-    reportError(central.isHub(i));
+    reportError(i + " | " + central.isCentral(i))
   }
 };
 

@@ -50,7 +50,7 @@ AllSearch.prototype.createIDFMap = function() {
  */
 AllSearch.prototype.searchQuery = function() {
   let me = this;
-  let iS = ["id", "url", "title", "frecency", "visit_count"];
+  let iS = ["id", "url", "title", "frecency", "visit_count", "rev_host"];
   let i = 0;
   let mS = [], kS = [], tS = [];
   let params = {};
@@ -92,10 +92,11 @@ AllSearch.prototype.searchQuery = function() {
       "score": data.score,
       "frecency": data.frecency,
       "bookmarked": me.utils.isBookmarked(data.id),
-      "hub": me.central.isHub(data.id),
+      "hub": true, // TODO: placeholder
       "tags": tags,
       "title": data.title,
       "url": data.url,
+      "revHost" : data.rev_host,
     }
   });
   reportError(JSON.stringify(me.ranks));

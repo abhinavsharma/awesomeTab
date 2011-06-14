@@ -1,6 +1,16 @@
+/**
+ * Creates an AwesomeTab instance for one tab.
+ * 
+ * @constructor
+ * @this {AwesomeTab}
+ * @param {Element} doc the document to populate with results.
+ * @param {Obect} utils an instance of the utilities class
+ * @param {Object} central a GrandCentral instance
+ * @param {Object} tagger an instance of the POSTagger
+ */
 function AwesomeTab(doc, utils, central, tagger) {
   let me = this;
-  // me.tester = new Tester();
+  //me.tester = new Tester();
   me.utils = utils;
   me.pos = new POSTagger();
   reportError("getting visible places");

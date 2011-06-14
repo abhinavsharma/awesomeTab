@@ -7,11 +7,16 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
   
   reportError(J(bmSearch));
   reportError(J(allSearch));
-
+  
+  try {
+  var allCentral = new GrandCentral(allSearch, utils);
+  var bmCentral = new GrandCentral(bmSearch, utils);
+  } catch (ex) {reportError(ex)}
   for (let placeId in bmSearch) {
     if (bmSearch["frecency"] < 100) {
       continue;
     }
+    bmSearch[placeId].hub = bmCentral.isCentral(placeId);
     let url = bmSearch[placeId]["url"];
     let placeTitle = bmSearch[placeId]["title"];
     let bmTitle = utils.getBookmarkTitleFromURL(url);
@@ -37,7 +42,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, utils) {
     if (allSearch["frecency"] < 100) {
       continue;
     }
-
+    allSearch[placeId].hub = allCentral.isCentral(placeId);
     let url = allSearch[placeId]["url"];
     let placeTitle = allSearch[placeId]["title"];
     if (placeId in includedPlaces ||

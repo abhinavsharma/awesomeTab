@@ -59,17 +59,18 @@ BookmarkSearch.prototype.searchQuery = function() {
     "(SELECT * FROM moz_bookmarks WHERE parent= :rowid AND (" + condition + ")) t " + 
     "JOIN moz_bookmarks b ON b.parent = t.id) h JOIN moz_places p ON p.id = h.fk LIMIT 10;"
   me.ranks = {};
-  me.utils.getDataQuery(query, params, ["id", "tag", "url", "title", "frecency"])
-    .forEach(function({id, tag, url, title, frecency}) {
+  me.utils.getDataQuery(query, params, ["id", "tag", "url", "title", "frecency", "rev_host"])
+    .forEach(function({id, tag, url, title, frecency, rev_host}) {
     if (!(id in me.ranks)) {
       me.ranks[id] = {
         "score": me.idfMap[tag],
         "frecency": frecency,
         "bookmarked": true,
-        "hub": me.central.isHub(id),
+        "hub": true, // TODO, this is temp
         "tags": [tag],
-        "title": title, //TODO replace with the one from bmsvc
+        "title": title, 
         "url": url,
+        "revHost": rev_host,
       }
     } else {
       me.ranks[id]["tags"].push(tag)

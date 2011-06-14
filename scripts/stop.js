@@ -438,11 +438,11 @@ STOPWORDS = {
   "org" : 1,
   "edu" : 1,
   "am": 1,
-  "search" : 1,
   "official": 1,
   "site": 1,
   "download": 1,
   "account": 1,
   "people": 1,
   "home": 1,
+  "results": 1,
 }

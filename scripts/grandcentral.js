@@ -99,23 +99,50 @@ function SessionCentral() {
 /*
  * urlMap is assumed to have a {rev_host -> url structure;}
  */
-function GrandCentral(urlMap, avgMap) {
+function GrandCentral(searchResults, utils) {
   let me = this;
+  me.utils = utils;
   me.trieMap = {};
   me.placeMap = {};
   me.hostMap = {};
-  me.avgMap = avgMap;
-  for (let revHost in urlMap) {
-    me.trieMap[revHost] = new URLTrie(urlMap[revHost], revHost, me);
+  me.nodeMap = {};
+  me.resMap = {};
+  
+  let uMap = {};
+  me.pMap = {};
+  for (let placeId in searchResults) {
+    let revHost = searchResults[placeId]["revHost"];
+    reportError(revHost);
+    if (!(revHost in uMap)) {
+      let query = "SELECT id, visit_count, url FROM moz_places WHERE rev_host = :revHost " +
+        "ORDER BY frecency DESC LIMIT 15";
+      uMap[revHost] = me.utils.getDataQuery(query, {
+        "revHost" : revHost}, ["id","visit_count","url"]);
+
+      uMap[revHost].forEach(function({id, visit_count, url}) {
+        me.pMap[id] = true;
+      });
+    } 
+  }
+
+  for (let revHost in uMap) {
+    me.trieMap[revHost] = new URLTrie(uMap[revHost], revHost, me);
+    reportError(me.trieMap[revHost]);
     me.trieMap[revHost].processTrie();
   }
+  /*
+  for (let placeId in me.nodeMap) {
+    reportError(placeId + "||" + me.nodeMap[placeId].h);
+  }
+  */
 }
 
-GrandCentral.prototype.isHub = function(placeId) {
+GrandCentral.prototype.isCentral = function(placeId) {
   let me = this;
-  let revHost = me.hostMap[placeId];
-  let url = me.placeMap[placeId];
-  return me.trieMap[revHost].isHub(url)
+  if (!(placeId in me.pMap)) {
+    return false;
+  }
+  return me.nodeMap[placeId].h;
 };
 
 function URLTrie(urls, revHost,  central) {
@@ -126,22 +153,18 @@ function URLTrie(urls, revHost,  central) {
   me.trie = {
     "v" : 0,
     "c" : {},
-    "p" : null,
   };
   me.nodeList = [];
 
   for (let i = 0; i < urls.length; i++) {
     central.placeMap[urls[i]["id"]] = urls[i]["url"];
     central.hostMap[urls[i]["id"]] = revHost;
-    me.addURL(urls[i]["url"], urls[i]["visit_count"]);
+    me.addURL(urls[i]["url"], urls[i]["visit_count"], urls[i]["id"]);
   }
-  reportError(J(me.nodeList));
-  reportError(J(me.trie));
   me.processTrie();
-  reportError(J(me.trie));
 }
 
-URLTrie.prototype.addURL = function(url, visitCount) {
+URLTrie.prototype.addURL = function(url, visitCount, placeId) {
   let me = this;
   let split = url.split(/(https{0,1}:\/\/)|(\/)|(\/{0,1}#\/{0,1})/)
     .slice(4).filter(function (s) {
@@ -152,17 +175,22 @@ URLTrie.prototype.addURL = function(url, visitCount) {
   let len = split.length;
   for (let i = 0; i < len; i++) {
     let str = split[i];
+    if (!current.c) {
+      continue; // TODO: find out whats going on here.
+    }
     if (str in current.c) {
       current = current.c[str];
     } else {
       current.c[str] = {
         "v" : (i == len - 1 ? visitCount : 0),
         "c" : {},
+        "p" : current,
       };
       current = current.c[str];
       me.nodeList.push(current);
     }
   }
+  me.central.nodeMap[placeId] = current;
 }
 
 /*
@@ -180,11 +208,17 @@ URLTrie.prototype.processTrie = function() {
       total += node.c[child].v;
       n += 1;
     }
-    reportError("stats: current - " + node.v + "avg: " + total + "/"+n + "hasc: " + hasChildren);
-    if (hasChildren && total/n < node.v) {
+    if (hasChildren && 2*(total/n) < node.v) { // TODO research this constant
       node.h = true;
-    } else if (!hasChildren) {
-      node.h = (node.v > 5 * me.central.avgMap[me.revHost]); // TODO: think
+    } else if (!hasChildren && Object.keys(node.p.c).length > 1) {
+      node.h = false; // TODO: think
+      let t = 0, n = 0;
+      for (let child in node.p.c) {
+        t += node.p.c[child].v;
+        n += 1;
+      }
+      node.h = node.v > 2*(t/n) ? true : false; // TODO: research this constant
+      
     } else {
       node.h = false;
     }
@@ -200,15 +234,33 @@ URLTrie.prototype.isHub = function(url) {
   let me = this;
   let split = me.splitMap[url];
   let current = me.trie;
-  let isHub = false;
+  let is = false;
   let current = me.trie.c;
 
   /* traverse trie to evaluted node and pick up if its a host */
   for (let i = 0; i < split.length; i++) {
     if (split[i] in current) {
-      isHub = current[split[i]]["h"];
+      is = current[split[i]]["h"];
       current = current[split[i]]["c"];
     }
   }
-  return isHub;
+  return is;
+}
+
+URLTrie.prototype.toString = function() {
+  let me = this;
+  let current = me.trie;
+  let d = "";
+
+  function createString(node, spacing) {
+    for (let child in node.c) {
+      d += spacing + child + "|"+ node.c[child].h + "|" +node.c[child].v + "\n";
+      if (Object.keys(node.c[child].c).length > 0) {
+        createString(node.c[child], spacing + "\t");
+      }
+    }
+  }
+
+  createString(me.trie, "\t")
+  return d;
 }
