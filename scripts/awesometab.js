@@ -32,7 +32,8 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   let t5 = d.getTime();
   reportError("showing results");
 
-  let mixer = new Mixer(searcher1.getResults(), searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
+  let mixer = new Mixer({}, searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
+ 
   let disp = new Display(mixer.getMixed(), doc, me.utils, annoID);
   //builder.show();
   let t6 = d.getTime();
