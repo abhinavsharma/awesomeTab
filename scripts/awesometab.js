@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -39,7 +39,7 @@
 
 /**
  * Creates an AwesomeTab instance for one tab.
- * 
+ *
  * @constructor
  * @this {AwesomeTab}
  * @param {Element} doc the document to populate with results.
@@ -72,7 +72,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   reportError("showing results");
 
   let mixer = new Mixer(searcher1.getResults(), searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
- 
+
   let disp = new Display(mixer.getMixed(), doc, me.utils, annoID);
   //builder.show();
   let t6 = d.getTime();
@@ -87,7 +87,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
 
 
 /**
- * @usage 
+ * @usage
  */
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let me = this;

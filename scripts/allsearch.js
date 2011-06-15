@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -46,7 +46,7 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils, central
   let me = this;
   me.utils = utils;
   me.excludedPlaces = excludedPlaces;
-  me.N = me.utils.getDataQuery("SELECT COUNT(1) as N FROM moz_places;", 
+  me.N = me.utils.getDataQuery("SELECT COUNT(1) as N FROM moz_places;",
     {}, ["N"])[0]["N"];
   me.collectedTags = collectedTags;
   me.MIN_VISIT_COUNT = 5;
@@ -72,11 +72,11 @@ AllSearch.prototype.createIDFMap = function() {
 }
 
 
-/* 
+/*
  * The problem with using the proper Okapi formula is that everything has a slightly different
  * score and the secondary sort by frecency becomes useless but this is not what we want.
  *
- * The problem is due to doclen, not because of tf. Plus, good websites have terrible titles 
+ * The problem is due to doclen, not because of tf. Plus, good websites have terrible titles
  * and there's not much that can be done about it.
  *
  * Another point about not looking in the title string for the tf is that that makes it
@@ -91,20 +91,20 @@ AllSearch.prototype.searchQuery = function() {
   let params = {};
   let allTags = {};
   let hasTag = false;
-  let baseTable = "(SELECT id,url,title,rev_host,visit_count,date('now') as now, " + 
-    "frecency, date(last_visit_date/(1000000), 'unixepoch', 'localtime') as date " + 
-    "FROM moz_places WHERE title is not null AND url LIKE 'http%' " + 
+  let baseTable = "(SELECT id,url,title,rev_host,visit_count,date('now') as now, " +
+    "frecency, date(last_visit_date/(1000000), 'unixepoch', 'localtime') as date " +
+    "FROM moz_places WHERE title is not null AND url LIKE 'http%' " +
     "AND now - date < 30 ORDER BY frecency DESC LIMIT 500) p"
   for (let tag in me.collectedTags) {
     hasTag = true;
     mS.push("(title LIKE :stra" + i + " AND title LIKE :strb"+i+") as v" + i);
-    kS.push(":idf" + i + " * " + 
+    kS.push(":idf" + i + " * " +
       "((3 * :tf"+i+") / (2 + :tf"+i+")) * "+ // Okapi without doclen normalization
       "(title LIKE :stra" + i + " AND title LIKE :strb" + i +")");
     tS.push("v"+i);
     allTags["v"+i] = tag;
     params["stra"+i] = "% " + tag + "%";
-    params["strb"+i] = "%" + tag + " %"; 
+    params["strb"+i] = "%" + tag + " %";
     params["idf"+i] = me.idfMap[tag] ;
     params["tf"+i] = me.tfMap[tag];
     i++;

@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -48,21 +48,21 @@ function Display(places, doc, utils, annoID) {
 
   if (SHOWNICE) {
     me.utils.getDataQuery(
-      "SELECT p.title as title, p.url as url, a.content as image " + 
+      "SELECT p.title as title, p.url as url, a.content as image " +
       "FROM moz_places p JOIN moz_annos a ON p.id = a.place_id WHERE " +
       "a.anno_attribute_id = :annoID ORDER BY frecency DESC LIMIT 8", {
       "annoID" : me.annoID,
     }, ["title", "url", "image"]).forEach(function({title, url, image}) {
        me.addElement(title, url, image, "frequented");
     });
-    
+
     let urlMap = {};
     let titleMap = {};
     let imageMap = {}
-    var imageCond = places.map(function (p) { 
+    var imageCond = places.map(function (p) {
       urlMap[p.id] = p.url;
       titleMap[p.id] = p.title;
-      return "place_id = " + p.id 
+      return "place_id = " + p.id
     } ).join(' OR ');
     me.utils.getDataQuery(
       "SELECT place_id, content FROM moz_annos WHERE anno_attribute_id = :annoID AND (" + imageCond + ")", {
@@ -90,15 +90,15 @@ function Display(places, doc, utils, annoID) {
   for (let i = 0; i < places.length; i++) {
     let place = places[i];
     reportError(J(place));
-    let title = place.title, 
-        score = place.score, 
-        frecency = place.frecency, 
+    let title = place.title,
+        score = place.score,
+        frecency = place.frecency,
         bookmarked = place.bookmarked,
         url = place.url,
         hub = place.hub,
         bmEngine = place.bmEngine,
         tags = place.tags;
-    
+
     if (!title || !url) {
       continue;
     }
@@ -110,7 +110,7 @@ function Display(places, doc, utils, annoID) {
       $('bThF-table').style.display = "block";
       type = 'bThF';
     }
-    
+
     let bmImg = doc.createElement('img');
     bmImg.style.height = '16px';
     bmImg.style.width = '16px';
@@ -132,9 +132,9 @@ function Display(places, doc, utils, annoID) {
     let cell2 = doc.createElement('td');
     cell2.innerHTML = tags.join("<br />");
     let cell3 = doc.createElement('td');
-    cell3.innerHTML = "Score: " + Math.round(score * 10000) / 10000 + "<br />" + 
-                      "Frecency: " + frecency + "<br />" + 
-                      "Hub: " + hub  + "<br />" + 
+    cell3.innerHTML = "Score: " + Math.round(score * 10000) / 10000 + "<br />" +
+                      "Frecency: " + frecency + "<br />" +
+                      "Hub: " + hub  + "<br />" +
                       "BM Engine: " + bmEngine;
     let cell4 = doc.createElement('td');
     cell4.appendChild(bmImg);
@@ -162,7 +162,7 @@ Display.prototype.addElement = function(title, url, image, type) {
 
   let thumbContainer = me.doc.createElement('span');
   thumbContainer.setAttribute('class', 'thumb-container');
-  
+
   let imageLink = me.doc.createElement('a');
   imageLink.setAttribute('href', url);
   let thumbnail = me.doc.createElement('img');
