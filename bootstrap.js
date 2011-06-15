@@ -49,7 +49,6 @@ AWESOMETAB_SCRIPTS = [
   "thumbnail",
   "utils",
   "collector",
-  "ranker",
   "grandcentral",
   "allsearch",
   "stop",
