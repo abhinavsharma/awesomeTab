@@ -7,8 +7,6 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils, central
   let me = this;
   me.utils = utils;
   me.excludedPlaces = excludedPlaces;
-  // TODO: construct a faster base table
-  me.BASE_TABLE = "";
   me.N = me.utils.getDataQuery("SELECT COUNT(1) as N FROM moz_places;", 
     {}, ["N"])[0]["N"];
   me.collectedTags = collectedTags;
@@ -21,7 +19,6 @@ function AllSearch(collectedTags, collectedHosts, excludedPlaces, utils, central
   me.searchQuery();
 }
 
-// TODO: make this faster, cut tags, pos tagging, etc, memoize,
 AllSearch.prototype.createIDFMap = function() {
   let me = this;
   for (let tag in me.collectedTags) {
@@ -30,7 +27,6 @@ AllSearch.prototype.createIDFMap = function() {
         "tag" : "%" + tag + "%"
       }, ["n"])[0]["n"];
     me.idfMap[tag] = Math.log((me.N - n + 0.5)/(n + 0.5));
-    // TODO : account for whether tag comes from a  make changes to collector
     me.tfMap[tag] = me.collectedTags[tag]["hosts"].length;
     reportError("done with idf map" + JSON.stringify(me.idfMap) + JSON.stringify(me.tfMap));
   }
@@ -96,7 +92,7 @@ AllSearch.prototype.searchQuery = function() {
       "score": data.score,
       "frecency": data.frecency,
       "bookmarked": me.utils.isBookmarked(data.id),
-      "hub": true, // TODO: placeholder
+      "hub": true, // this is later fixed through Grand Central
       "tags": tags,
       "title": data.title,
       "url": data.url,

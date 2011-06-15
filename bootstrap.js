@@ -197,6 +197,13 @@ function handlePageLoad(e) {
   global.thumbnailer.handlePageLoad(e);
 }
 
+function handleTabSelect(e) {
+  let url = e.originalTarget.linkedBrowser.contentDocument.location.href;
+  if (url && (/^http:\/\//).test(url)) {
+    global.lastURL = url;
+  }
+}
+
 /**
  * Shift the window's main browser content down and right a bit
  */
@@ -204,6 +211,8 @@ function setupListener(window) {
 Cu.reportError("setup listener");
 
   window.addEventListener("DOMContentLoaded", handlePageLoad, true);
+  let gB = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
+  gB.tabContainer.addEventListener("TabSelect", handleTabSelect, false)
 
   function change(obj, prop, val) {
     let orig = obj[prop];
@@ -234,9 +243,8 @@ Cu.reportError("setup listener");
   
   unload(function() {
     window.removeEventListener("DOMContentLoaded", handlePageLoad, true);
+    gB.removeEventListener("TabSelect", handleTabSelect, true);
   }, window);
-
-  
 }
 
 /**

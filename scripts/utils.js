@@ -153,10 +153,7 @@ AwesomeTabUtils.prototype.insertData = function(data, table) {
 };
 
 AwesomeTabUtils.prototype.isValidURL = function(url) {
-  if (url && url.indexOf("http") > -1) {
-    return true;
-  }
-  return false;
+  return (url && (/^http:\/\//).test(url))
 };
 
 AwesomeTabUtils.prototype.getCurrentTime = function(precision) {

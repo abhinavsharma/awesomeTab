@@ -176,7 +176,7 @@ URLTrie.prototype.addURL = function(url, visitCount, placeId) {
   for (let i = 0; i < len; i++) {
     let str = split[i];
     if (!current.c) {
-      continue; // TODO: find out whats going on here.
+      continue;
     }
     if (str in current.c) {
       current = current.c[str];
@@ -208,16 +208,16 @@ URLTrie.prototype.processTrie = function() {
       total += node.c[child].v;
       n += 1;
     }
-    if (hasChildren && 2*(total/n) < node.v) { // TODO research this constant
+    if (hasChildren && 2*(total/n) < node.v) {
       node.h = true;
     } else if (!hasChildren && Object.keys(node.p.c).length > 1) {
-      node.h = false; // TODO: think
+      node.h = false;
       let t = 0, n = 0;
       for (let child in node.p.c) {
         t += node.p.c[child].v;
         n += 1;
       }
-      node.h = node.v > 2*(t/n) ? true : false; // TODO: research this constant
+      node.h = node.v > 2*(t/n) ? true : false;
       
     } else {
       node.h = false;

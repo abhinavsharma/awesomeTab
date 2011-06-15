@@ -53,7 +53,6 @@ BookmarkSearch.prototype.searchQuery = function() {
   }
   condition = condition.join(' OR ');
   params["rowid"] = me.rowid;
-  // TODO: test performance against compute score in query version
   let query = "SELECT p.id as id, p.title as title,  p.url as url, " +
     "p.frecency as frecency, p.rev_host as rev_host, " +
     "GROUP_CONCAT(tag) as tags, COUNT(1) as matches FROM " + 
@@ -82,7 +81,7 @@ BookmarkSearch.prototype.searchQuery = function() {
         "score": score,
         "frecency": frecency,
         "bookmarked": true,
-        "hub": central.isHub(id), // TODO, this is temp
+        "hub": central.isHub(id),
         "tags": tags.split(','),
         "title": title, 
         "url": url,

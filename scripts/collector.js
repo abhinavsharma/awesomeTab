@@ -230,7 +230,6 @@ TagCollector.prototype.collectTags = function(clusterMap) {
 
 /*
  * returns list of tags for a given placeId
- * TODO: centralize regexes
  */
 TagCollector.prototype.getTitleTags = function(placeId) {
   let me = this;
