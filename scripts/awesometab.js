@@ -45,6 +45,10 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   } catch (ex) { reportError(ex) }
 }
 
+
+/**
+ * @usage 
+ */
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let me = this;
   let condition = Object.keys(visiblePlaces).map(function(placeId) {

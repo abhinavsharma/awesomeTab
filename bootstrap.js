@@ -65,7 +65,7 @@ const global = this;
 global.isInit = false;
 
 const DEBUG = true;
-const SHOWNICE = true;
+const SHOWNICE = false;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};

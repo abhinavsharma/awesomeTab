@@ -56,6 +56,10 @@ AllSearch.prototype.searchQuery = function() {
   let params = {};
   let allTags = {};
   let hasTag = false;
+  let baseTable = "(SELECT id,url,title,rev_host,visit_count,date('now') as now, " + 
+    "frecency, date(last_visit_date/(1000000), 'unixepoch', 'localtime') as date " + 
+    "FROM moz_places WHERE title is not null AND url LIKE 'http%' " + 
+    "AND now - date < 30 ORDER BY frecency DESC LIMIT 500) p"
   for (let tag in me.collectedTags) {
     hasTag = true;
     mS.push("(title LIKE :stra" + i + " AND title LIKE :strb"+i+") as v" + i);
@@ -75,7 +79,7 @@ AllSearch.prototype.searchQuery = function() {
   }
   iSelect = iS.concat(mS).join(',') + "," + kS.join('+') + " as score";
   let iCond = "visit_count > 2 AND length(title) > 0 AND score > 0";
-  let query = "SELECT " + iSelect + " FROM moz_places WHERE " + iCond + " ORDER BY score DESC";
+  let query = "SELECT " + iSelect + " FROM " + baseTable + " WHERE " + iCond + " ORDER BY score DESC";
   try {
   var result = me.utils.getDataQuery(query, params, iS.concat(tS).concat(["score"]));
   } catch (ex) { reportError(JSON.stringify(ex)) };
