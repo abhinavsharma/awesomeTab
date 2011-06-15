@@ -192,7 +192,7 @@ function unload(callback, container) {
 
 function handlePageLoad(e) {
   reportError("Handling a page load");
-  global.thumbnailer.handlePageLoad(e);
+  // global.thumbnailer.handlePageLoad(e);
 }
 
 function handleTabSelect(e) {
@@ -232,7 +232,7 @@ function setupListener(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new AwesomeTab(doc, global.utils, global.central, global.tagger, global.thumbnailer.getAnnoID());
+          let dashboard = new AwesomeTab(doc, global.utils, global.central, global.tagger, 0) //global.thumbnailer.getAnnoID());
         }, true);
 
       }
@@ -270,7 +270,7 @@ function globalInit(id) {
 
       global.tagger = new POSTagger();
       global.utils = new AwesomeTabUtils();
-      global.thumbnailer = global.thumbnailer ? global.thumbnaler : new Thumbnailer();
+      // global.thumbnailer = global.thumbnailer ? global.thumbnaler : new Thumbnailer();
       watchWindows(setupListener);
     }); 
   }

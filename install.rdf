@@ -8,8 +8,8 @@
     <iconURL>http://mozillalabs.com/wp-content/themes/labs_project/img/prospector-header.png</iconURL>
     <updateURL>https://people.mozilla.com/~asharma/awesomeTab/update.rdf</updateURL>
     <id>awesometab@abhinavsharma.me</id>
-    <name>AwesomeTab</name>
-    <version>0.6.1</version>
+    <name>Mozilla Labs: Prospector - Predictive Newtab</name>
+    <version>1</version>
 
     <bootstrap>true</bootstrap>
     <type>2</type>
