@@ -61,7 +61,7 @@ AWESOMETAB_SCRIPTS = [
 
 const global = this;
 global.isInit = false;
-const DEBUG = true;
+const DEBUG = false;
 const SHOWNICE = false;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
@@ -208,7 +208,6 @@ function handleTabSelect(e) {
  * Shift the window's main browser content down and right a bit
  */
 function setupListener(window) {
-Cu.reportError("setup listener");
 
   window.addEventListener("DOMContentLoaded", handlePageLoad, true);
   let gB = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
