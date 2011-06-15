@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -79,13 +79,13 @@ SiteCentral.prototype.isURLHub = function(url) {
   url = url[0];
   let splitURL = url.split('/');
 
-  
+
   /* Quick reject */
   if (url.length > 80) { // very unlikely to be a hub
     reportError(url + "TOO LONG");
     return false
   }
-  
+
   if (RE_FAIL_URL.test(url)) {
     return false;
   }
@@ -101,7 +101,7 @@ SiteCentral.prototype.isURLHub = function(url) {
     reportError(url + "has too many slashes");
     return false; // craziest i've seen is https://www.amazon.com/gp/dmusic/mp3/player
   }
-  
+
   if (!splitURL.reduce(function(p,c){
         return (p && c.length < 40 && c.split(/[\-\_]/g).length < 3);
       }, true)) {
@@ -113,9 +113,9 @@ SiteCentral.prototype.isURLHub = function(url) {
 
 SiteCentral.prototype.hubMapForHosts = function(hosts) {
   let me = this;
-  let sqlQuery = "SELECT id, visit_count FROM (SELECT AVG(visit_count) " + 
-    "as a FROM moz_places WHERE :condition) avg INNER JOIN " + 
-    "(SELECT * FROM moz_places WHERE :condition) " + 
+  let sqlQuery = "SELECT id, visit_count FROM (SELECT AVG(visit_count) " +
+    "as a FROM moz_places WHERE :condition) avg INNER JOIN " +
+    "(SELECT * FROM moz_places WHERE :condition) " +
     "p ON p.visit_count > 5 * avg.a";
   let params = {
     condition : hosts.map(function(s) { return "rev_host = " + s}).join(' OR '),
@@ -147,7 +147,7 @@ function GrandCentral(searchResults, utils) {
   me.hostMap = {};
   me.nodeMap = {};
   me.resMap = {};
-  
+
   let uMap = {};
   me.pMap = {};
   for (let placeId in searchResults) {
@@ -162,7 +162,7 @@ function GrandCentral(searchResults, utils) {
       uMap[revHost].forEach(function({id, visit_count, url}) {
         me.pMap[id] = true;
       });
-    } 
+    }
   }
 
   for (let revHost in uMap) {
@@ -239,7 +239,7 @@ URLTrie.prototype.addURL = function(url, visitCount, placeId) {
 URLTrie.prototype.processTrie = function() {
   let me = this;
   let current = me.trie.c;
-  
+
   function hubbleBubble(node) {
     let children = node.c, total = 0, n = 0;
     let hasChildren = false;
@@ -258,7 +258,7 @@ URLTrie.prototype.processTrie = function() {
         n += 1;
       }
       node.h = node.v > 2*(t/n) ? true : false;
-      
+
     } else {
       node.h = false;
     }
@@ -267,7 +267,7 @@ URLTrie.prototype.processTrie = function() {
   for (let i = 0; i < me.nodeList.length; i++) {
     hubbleBubble(me.nodeList[i]);
   }
-    
+
 };
 
 URLTrie.prototype.isHub = function(url) {
