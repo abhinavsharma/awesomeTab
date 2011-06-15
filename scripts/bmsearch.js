@@ -54,20 +54,36 @@ BookmarkSearch.prototype.searchQuery = function() {
   condition = condition.join(' OR ');
   params["rowid"] = me.rowid;
   // TODO: test performance against compute score in query version
+  let query = "SELECT p.id as id, p.title as title,  p.url as url, " +
+    "p.frecency as frecency, p.rev_host as rev_host, " +
+    "GROUP_CONCAT(tag) as tags, COUNT(1) as matches FROM " + 
+    "(SELECT t.title as tag, b.fk as place_id FROM " + 
+    "(SELECT * FROM moz_bookmarks WHERE parent = :rowid AND (" + condition + ")) t JOIN " + 
+    "(SELECT * FROM moz_bookmarks WHERE type=1) b ON b.parent=t.id) r JOIN " + 
+    "moz_places p ON p.id=r.place_id GROUP BY p.id ORDER BY matches DESC, frecency DESC LIMIT 10"
+  /*
   let query = "SELECT p.id as id, h.title as tag, p.url as url, p.title as title, " + 
     "p.rev_host as rev_host, p.frecency as frecency FROM (SELECT b.fk, t.title FROM " + 
     "(SELECT * FROM moz_bookmarks WHERE parent= :rowid AND (" + condition + ")) t " + 
     "JOIN moz_bookmarks b ON b.parent = t.id) h JOIN moz_places p ON p.id = h.fk LIMIT 10;"
+  */
+  reportError("BMSEARCH");
   me.ranks = {};
-  me.utils.getDataQuery(query, params, ["id", "tag", "url", "title", "frecency", "rev_host"])
-    .forEach(function({id, tag, url, title, frecency, rev_host}) {
+  let result = me.utils.getDataQuery(query, params, ["id", "tags", "url", "title", "frecency", "rev_host"]);
+  reportError(result.length);
+  result.forEach(function({id, tags, url, title, frecency, rev_host}) {
     if (!(id in me.ranks)) {
+      let score = tags.split(',').map(function(tag) {
+        return me.idfMap[tag];
+      }).reduce(function (a,b) {
+        return a+b;
+      });
       me.ranks[id] = {
-        "score": me.idfMap[tag],
+        "score": score,
         "frecency": frecency,
         "bookmarked": true,
         "hub": central.isHub(id), // TODO, this is temp
-        "tags": [tag],
+        "tags": tags.split(','),
         "title": title, 
         "url": url,
         "revHost": rev_host,
