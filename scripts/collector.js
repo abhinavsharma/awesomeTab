@@ -1,7 +1,8 @@
-function TagCollector(currentPlaces, utils, pos) {
+function TagCollector(lastKPlaces, currentPlaces, utils, pos) {
   let me = this;
   reportError("incoming open uri: " + JSON.stringify(currentPlaces));
   me.currentPlaces = currentPlaces;
+  me.lastKPlaces = lastKPlaces;
   me.utils = utils;
   me.pos = pos;
   me.allHosts = {};
@@ -42,7 +43,8 @@ TagCollector.prototype.collectIncremental = function() {
     let host = me.currentPlaces[placeId]["rev_host"];
     me.allHosts[host] = true;
   }
-  for (let placeId in me.currentPlaces) {
+  for (let p = 0; p < me.lastKPlaces.length; p++) {
+    let placeId = me.lastKPlaces[p];
     let breakNow = !(i == 0); // make an exception for the first place
     let url = me.currentPlaces[placeId]["url"];
     let revHost = me.currentPlaces[placeId]["rev_host"];

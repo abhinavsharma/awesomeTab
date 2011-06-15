@@ -42,7 +42,6 @@ const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
-Cu.import("resource://services-sync/util.js");
 
 /* Javascript files to import from scripts/ */
 AWESOMETAB_SCRIPTS = [
@@ -202,6 +201,7 @@ function handlePageLoad(e) {
  * Shift the window's main browser content down and right a bit
  */
 function setupListener(window) {
+Cu.reportError("setup listener");
 
   window.addEventListener("DOMContentLoaded", handlePageLoad, true);
 
@@ -249,6 +249,9 @@ function startup(data, reason) {
 function globalInit(id) {
   if (!global.isInit) {
     AddonManager.getAddonByID(id, function(addon) {
+      // XXX Force a QI until bug 609139 is fixed
+      PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase);
+
       /* import scripts */
       AWESOMETAB_SCRIPTS.forEach(function(fileName) {
         let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
@@ -280,7 +283,6 @@ function shutdown(data, reason) {
  * Handle the add-on being installed
  */
 function install(data, reason) {
-  globalInit(data.id);
 }
 
 /**

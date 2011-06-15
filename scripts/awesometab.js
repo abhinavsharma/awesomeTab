@@ -20,7 +20,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   let t2 = d.getTime();
-  let collector = new TagCollector(currentPlaces, me.utils, tagger);
+  let collector = new TagCollector(currentPlaces,visiblePlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
   let collectedHosts = collector.getHosts();
   let t3 = d.getTime();
@@ -52,6 +52,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
  */
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let me = this;
+  let gBrowser = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
   let condition = Object.keys(visiblePlaces).map(function(placeId) {
     return "place_id=" + placeId;
   }).join(" OR ");
@@ -59,10 +60,15 @@ AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
     +"place_id ORDER BY id DESC LIMIT " + k;
   let params = {}
   let data =  me.utils.getDataQuery(sqlQuery, params, ["place_id"])
-  let lastKPlaces = {};
+  let lastKPlaces = [];
+  let activeURL = gBrowser.contentDocument.location.href;
+  reportError("ACTIVE" + activeURL);
   for (let i = 0; i < data.length; i++) {
     let placeId = data[i]["place_id"];
-    lastKPlaces[placeId] = visiblePlaces[placeId];
+    if (visiblePlaces[placeId]["url"] == activeURL) {
+      lastKPlaces.unshift(placeId);
+    }
+    lastKPlaces.push(placeId);
   }
   return lastKPlaces;
 };
