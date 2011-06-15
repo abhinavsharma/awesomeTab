@@ -2,17 +2,19 @@
 <r:RDF xmlns="http://www.mozilla.org/2004/em-rdf#"
        xmlns:r="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <r:Description about="urn:mozilla:install-manifest">
-    <creator>Abhinav Sharma</creator>
-    <description>Better information on new tabs.</description>
-    <homepageURL>http://awesometab.abhinavsharma.me/</homepageURL>
+    <creator>Mozilla Labs</creator>
+    <description>Show predictions of where to go on new tabs</description>
+    <homepageURL>https://mozillalabs.com/prospector</homepageURL>
     <iconURL>http://mozillalabs.com/wp-content/themes/labs_project/img/prospector-header.png</iconURL>
-    <updateURL>https://people.mozilla.com/~asharma/awesomeTab/update.rdf</updateURL>
-    <id>awesometab@abhinavsharma.me</id>
+    <id>predictive.newtab@prospector.labs.mozilla</id>
     <name>Mozilla Labs: Prospector - Predictive Newtab</name>
     <version>1</version>
 
     <bootstrap>true</bootstrap>
     <type>2</type>
+
+    <contributor>Abhinav Sharma</contributor>
+    <contributor>Edward Lee</contributor>
 
     <targetApplication>
       <r:Description>

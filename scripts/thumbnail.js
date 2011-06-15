@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -86,7 +86,7 @@ Thumbnailer.prototype.createDB = function() {
   if (result.length > 0) {
     return result[0]["id"];
   }
-  
+
   spinQuery(PlacesUtils.history.DBConnection, {
     query: "INSERT INTO moz_anno_attributes (name) VALUES (:val)",
     params: {
@@ -94,7 +94,7 @@ Thumbnailer.prototype.createDB = function() {
     },
     names: [],
   });
-  
+
   result = spinQuery(PlacesUtils.history.DBConnection, {
     query: "SELECT id FROM moz_anno_attributes WHERE name = :name",
     params: {
@@ -149,7 +149,7 @@ Thumbnailer.prototype.handlePageLoad = function(e) {
   if (existing.length == 0) {
     /* not thumbnailed, do it now */
     spinQuery(PlacesUtils.history.DBConnection, {
-      query: "INSERT INTO moz_annos (place_id, anno_attribute_id, content, dateAdded, lastModified, expiration) " + 
+      query: "INSERT INTO moz_annos (place_id, anno_attribute_id, content, dateAdded, lastModified, expiration) " +
         "VALUES (:placeId, :annoID, :content, :dateAdded, :lastModified, 4)",
       params : {
         "placeId" : placeId,

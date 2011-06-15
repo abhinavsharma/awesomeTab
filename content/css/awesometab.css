@@ -1,5 +1,5 @@
 /* ------------------
- styling for the tables 
+ styling for the tables
    ------------------   */
 
 /* ***** BEGIN LICENSE BLOCK *****
@@ -15,15 +15,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -43,32 +43,32 @@
 
 
 body {
-	line-height: 1.6em;
+  line-height: 1.6em;
 }
 
 h1 {
   font-family: "Lucida Sans Unicode","Lucida Grande",Sans-Serif;
   font-size: 14px;
-  margin: 40px 10px, 10px, 20px;
+  margin: 40px 10px 10px 20px;
 }
 
 
 table
 {
   display: none;
-	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-	font-size: 12px;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size: 12px;
   margin: 45px auto 0 auto;
-	width: 720px;
-	text-align: left;
+  width: 720px;
+  text-align: left;
 }
 th
 {
-	padding: 20px;
-	font-weight: normal;
-	font-size: 13px;
-	color: #039;
-	text-transform: uppercase;
+  padding: 20px;
+  font-weight: normal;
+  font-size: 13px;
+  color: #039;
+  text-transform: uppercase;
 }
 
 tr {
@@ -77,8 +77,8 @@ tr {
 
 td
 {
-	padding: 10px 20px;
-	color: #669;
+  padding: 10px 20px;
+  color: #669;
 }
 
 #footer {

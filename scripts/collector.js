@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -55,7 +55,7 @@ function TagCollector(lastKPlaces, currentPlaces, utils, pos) {
 TagCollector.prototype.collectIncremental = function() {
   let me = this;
   let tagMap = {};
-  
+
   /* merges tags from a new place into ones collected so far if required */
   function mergeBuffer(tB) {
     reportError("merging: " + J(tagMap) + J(tB));
@@ -209,7 +209,7 @@ TagCollector.prototype.collectTags = function(clusterMap) {
       let titleTags = me.getTitleTags(placeId);
       let bookmarkTags = me.getTagsFromPlace(placeId);
       reportError(J(titleTags) + J(bookmarkTags));
-      if (bookmarkTags)  
+      if (bookmarkTags)
         reportError(J(me.pos.tag(bookmarkTags)));
       if (titleTags)
         reportError(J(me.pos.tag(titleTags)));

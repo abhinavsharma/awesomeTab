@@ -11,15 +11,15 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Restartless.
+ * The Original Code is Predictive Newtab.
  *
  * The Initial Developer of the Original Code is The Mozilla Foundation.
- * Portions created by the Initial Developer are Copyright (C) 2010
+ * Portions created by the Initial Developer are Copyright (C) 2011
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *    Abhinav Sharma <asharma@mozilla.com>
- *    Edward Lee <edilee@mozilla.com>
+ *   Abhinav Sharma <asharma@mozilla.com>
+ *   Edward Lee <edilee@mozilla.com>
  *
  * Alternatively, the contents of this file may be used under the terms of
  * either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -44,10 +44,10 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
   let includedTitles = {};
   let includedPlaces = {};
   let placeArr = [];
-  
+
   reportError(J(bmSearch));
   reportError(J(allSearch));
-  
+
   try {
   var allCentral = new GrandCentral(allSearch, utils);
   //var bmCentral = new GrandCentral(bmSearch, utils);
@@ -63,7 +63,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
     let bmTitle = utils.getBookmarkTitleFromURL(url);
     bmTitle = bmTitle ? bmTitle : placeTitle;
     if (placeId in includedPlaces ||
-        bmTitle in includedTitles || 
+        bmTitle in includedTitles ||
         bmTitle in collectedTitles ||
         placeTitle in includedTitles ||
         revHost in collectedHosts ||
@@ -110,7 +110,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
 
   placeArr.sort(function (p1, p2) {
     /* prioritize results from the bookmark search engine */
-    
+
     let bmDiff = p2["bmEngine"] - p1["bmEngine"];
     if (bmDiff != 0) {
       return bmDiff;
