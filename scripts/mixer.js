@@ -36,6 +36,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
     let result = bmSearch[placeId];
     result["bmEngine"] = 1;
     result["title" ] = bmTitle;
+    result["id"] = placeId;
     reportError(J(result));
     placeArr.push(result);
   }
@@ -58,6 +59,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
     includedPlaces[placeId] = 1;
     let result = allSearch[placeId];
     result["bmEngine"] = 0;
+    result["id"] = placeId;
     reportError(J(result));
     placeArr.push(result);
 

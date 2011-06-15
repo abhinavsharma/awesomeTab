@@ -65,6 +65,7 @@ const global = this;
 global.isInit = false;
 
 const DEBUG = true;
+const SHOWNICE = true;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
 const J = DEBUG ? JSON.stringify : function() {return ""};
@@ -224,7 +225,7 @@ function setupListener(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new AwesomeTab(doc, global.utils, global.central, global.tagger);
+          let dashboard = new AwesomeTab(doc, global.utils, global.central, global.tagger, global.thumbnailer.getAnnoID());
         }, true);
 
       }
@@ -254,7 +255,7 @@ function globalInit(id) {
         let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
         Services.scriptloader.loadSubScript(fileURI.spec, global);
       });
-      global.aboutURI = addon.getResourceURI("content/awesometab.html");
+      global.aboutURI = !SHOWNICE ? addon.getResourceURI("content/awesometab.html") : addon.getResourceURI("content/dial.html");
       global.central = new SiteCentral();
       global.tagger = new POSTagger();
       global.utils = new AwesomeTabUtils();

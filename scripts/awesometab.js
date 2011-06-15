@@ -8,7 +8,7 @@
  * @param {Object} central a GrandCentral instance
  * @param {Object} tagger an instance of the POSTagger
  */
-function AwesomeTab(doc, utils, central, tagger) {
+function AwesomeTab(doc, utils, central, tagger, annoID) {
   let me = this;
   //me.tester = new Tester();
   try {
@@ -32,9 +32,8 @@ function AwesomeTab(doc, utils, central, tagger) {
   let t5 = d.getTime();
   reportError("showing results");
 
-  //let builder = new Builder(rankedResults2, doc, me.utils, me.collectedTitles);
   let mixer = new Mixer(searcher1.getResults(), searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
-  let disp = new Display(mixer.getMixed(), doc);
+  let disp = new Display(mixer.getMixed(), doc, me.utils, annoID);
   //builder.show();
   let t6 = d.getTime();
 

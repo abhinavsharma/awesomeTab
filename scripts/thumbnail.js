@@ -110,8 +110,8 @@ Thumbnailer.prototype.handlePageLoad = function(e) {
   if (existing.length == 0) {
     /* not thumbnailed, do it now */
     spinQuery(PlacesUtils.history.DBConnection, {
-      query: "INSERT INTO moz_annos (place_id, anno_attribute_id, content, dateAdded, lastModified) " + 
-        "VALUES (:placeId, :annoID, :content, :dateAdded, :lastModified)",
+      query: "INSERT INTO moz_annos (place_id, anno_attribute_id, content, dateAdded, lastModified, expiration) " + 
+        "VALUES (:placeId, :annoID, :content, :dateAdded, :lastModified, 4)",
       params : {
         "placeId" : placeId,
         "annoID" : me.annoID,
