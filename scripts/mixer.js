@@ -66,7 +66,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
         bmTitle in includedTitles ||
         bmTitle in collectedTitles ||
         placeTitle in includedTitles ||
-        revHost in collectedHosts ||
+        //revHost in collectedHosts ||
         placeTitle in collectedTitles) {
       continue;
     }
@@ -90,7 +90,7 @@ function Mixer(bmSearch, allSearch, collectedTitles, collectedHosts, utils) {
     let placeTitle = allSearch[placeId]["title"];
     let revHost = allSearch[placeId]["revHost"];
     if (placeId in includedPlaces ||
-        revHost in collectedHosts ||
+        //revHost in collectedHosts ||
         placeTitle in includedTitles ||
         placeTitle in collectedTitles) {
       continue;

@@ -82,6 +82,7 @@ TagCollector.prototype.collectIncremental = function() {
     let host = me.currentPlaces[placeId]["rev_host"];
     me.allHosts[host] = true;
   }
+  reportError(me.lastKPlaces.length);
   for (let p = 0; p < me.lastKPlaces.length; p++) {
     let placeId = me.lastKPlaces[p];
     let breakNow = !(i == 0); // make an exception for the first place
@@ -90,10 +91,11 @@ TagCollector.prototype.collectIncremental = function() {
     let tagBuffer = {};
     let titleTags = me.filterPOS(me.getTitleTags(placeId));
     let bookmarkTags = me.getTagsFromPlace(placeId);
-
+    reportError(placeId + url);
     if (!me.utils.isValidURL(url)) {
       continue;
     }
+    reportError(J(bookmarkTags));
 
     for (let i = 0; bookmarkTags && i < bookmarkTags.length; i++) {
       let tag = bookmarkTags[i];

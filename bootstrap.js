@@ -61,7 +61,7 @@ AWESOMETAB_SCRIPTS = [
 ];
 
 const global = this;
-const DEBUG = false;
+const DEBUG = true;
 const SHOWNICE = false;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};

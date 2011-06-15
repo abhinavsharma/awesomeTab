@@ -192,7 +192,7 @@ AwesomeTabUtils.prototype.insertData = function(data, table) {
 };
 
 AwesomeTabUtils.prototype.isValidURL = function(url) {
-  return (url && (/^http:\/\//).test(url))
+  return (url && (/^https{0,1}:\/\//).test(url))
 };
 
 AwesomeTabUtils.prototype.getCurrentTime = function(precision) {
