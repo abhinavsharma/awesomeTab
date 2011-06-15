@@ -79,7 +79,7 @@ AllSearch.prototype.searchQuery = function() {
   }
   iSelect = iS.concat(mS).join(',') + "," + kS.join('+') + " as score";
   let iCond = "visit_count > 2 AND length(title) > 0 AND score > 0";
-  let query = "SELECT " + iSelect + " FROM " + baseTable + " WHERE " + iCond + " ORDER BY score DESC";
+  let query = "SELECT " + iSelect + " FROM " + baseTable + " WHERE " + iCond + " ORDER BY score DESC LIMIT 15";
   try {
   var result = me.utils.getDataQuery(query, params, iS.concat(tS).concat(["score"]));
   } catch (ex) { reportError(JSON.stringify(ex)) };
