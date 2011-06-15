@@ -61,7 +61,6 @@ AWESOMETAB_SCRIPTS = [
 
 const global = this;
 global.isInit = false;
-
 const DEBUG = true;
 const SHOWNICE = false;
 const TESTER = true;
@@ -199,6 +198,8 @@ function handlePageLoad(e) {
 function handleTabSelect(e) {
   let url = e.originalTarget.linkedBrowser.contentDocument.location.href;
   if (url && (/^http:\/\//).test(url)) {
+    reportError("TAB CHANGE: " + url + global.useActiveTab);
+    useActive = true;
     global.lastURL = url;
   }
 }
@@ -266,6 +267,8 @@ function globalInit(id) {
       });
       global.aboutURI = !SHOWNICE ? addon.getResourceURI("content/awesometab.html") : addon.getResourceURI("content/dial.html");
       global.central = new SiteCentral();
+      useActive = false;
+
       global.tagger = new POSTagger();
       global.utils = new AwesomeTabUtils();
       global.thumbnailer = global.thumbnailer ? global.thumbnaler : new Thumbnailer();

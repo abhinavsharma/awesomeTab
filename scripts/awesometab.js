@@ -63,11 +63,14 @@ AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   reportError("ACTIVE" + global.lastURL);
   for (let i = 0; i < data.length; i++) {
     let placeId = data[i]["place_id"];
-    if (visiblePlaces[placeId]["url"] == global.lastURL) {
+    reportError("USING ACTIVE TAB" + useActive);
+    if (visiblePlaces[placeId]["url"] == global.lastURL && useActive) {
+      reportError("LAST URL WAS" + global.lastURL + placeId)
       lastKPlaces.unshift(placeId);
     }
     lastKPlaces.push(placeId);
   }
+  reportError(lastKPlaces);
   return lastKPlaces;
 };
 
