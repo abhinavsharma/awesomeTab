@@ -112,7 +112,8 @@ function setupListener(window) {
 
   window.addEventListener("DOMContentLoaded", handlePageLoad, true);
   let gB = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
-  gB.tabContainer.addEventListener("TabSelect", handleTabSelect, false)
+  //gB.tabContainer.addEventListener("TabSelect", handleTabSelect, false)
+  listen(window, gB.tabContainer, "TabSelect", handleTabSelect);
 
   function change(obj, prop, val) {
     let orig = obj[prop];
@@ -143,7 +144,7 @@ function setupListener(window) {
 
   unload(function() {
     window.removeEventListener("DOMContentLoaded", handlePageLoad, true);
-    gB.tabContainer.removeEventListener("TabSelect", handleTabSelect, true);
+    //gB.tabContainer.removeEventListener("TabSelect", handleTabSelect, true);
   }, window);
 }
 
