@@ -163,6 +163,7 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
   global.aboutURI = !SHOWNICE ? addon.getResourceURI("content/awesometab.html") : addon.getResourceURI("content/dial.html");
   global.central = new SiteCentral();
   global.jumper = new JumpTracker();
+  global.linkJumper = new LinkJumper();
   useActive = false;
 
   global.tagger = new POSTagger();

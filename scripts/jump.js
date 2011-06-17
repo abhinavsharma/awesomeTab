@@ -42,7 +42,7 @@ JumpTracker.prototype.addPair = function(start, end) {
   }
   reportError("ADDING PAIR: " + start + "|" + end);
   let existing = spinQuery(PlacesUtils.history.DBConnection, {
-    "query": "SELECT COUNT(1) as c FROM moz_jump_tracker WHERE src = :src AND dst = :dst",
+    "query": "SELECT COUNT(1) as c FROM moz_jump_tracker WHERE src = :src AND dst = :dst AND type = 1",
     "names": ["c"],
     "params": {
       "src" : start,
@@ -62,7 +62,7 @@ JumpTracker.prototype.addPair = function(start, end) {
   } else {
     reportError("inesrting");
     spinQuery(PlacesUtils.history.DBConnection, {
-      "query": "INSERT INTO moz_jump_tracker (src, dst, count) VALUES (:src, :dst, :count);",
+      "query": "INSERT INTO moz_jump_tracker (src, dst, count, type) VALUES (:src, :dst, :count, 1);",
       "params": {
         "src" : start,
         "dst" : end,
@@ -122,4 +122,38 @@ JumpTracker.prototype.flushBuffer = function() {
     me.addPair(start, end);
   }
   me.buffer = [me.buffer[me.buffer.length - 1]];
+}
+
+function LinkJumper() {
+  let me = this;
+  let jumpTable = me.getJumpTable();
+  me.jumpList = {};
+  for (let i = 0; i < jumpTable.length; i++) {
+    let row = jumpTable[i];
+    let startHost = row.starthost,
+        endHost = row.endhost,
+        count = row.count;
+    if (startHost in me.jumpList) {
+      me.jumpList[startHost].push([endHost, count]);
+    } else {
+      me.jumpList[startHost] = [[endHost, count]];
+    }
+  }
+  reportError(J(me.jumpList));
+}
+
+LinkJumper.prototype.getJumpTable = function () {
+  let query = "SELECT p1.rev_host as starthost, p2.rev_host as endhost, COUNT(1) as count FROM (SELECT h.place_id as st, dst.place_id as end FROM (SELECT * FROM moz_historyvisits WHERE visit_type = 1 AND from_visit != 0 ORDER BY id desc) dst JOIN moz_historyvisits h on dst.from_visit = h.id GROUP BY st, end) path JOIN moz_places p1 on path.st = p1.id join moz_places p2 on p2.id = path.end WHERE starthost != endhost GROUP BY starthost, endhost ORDER by count DESC";
+  return spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : query,
+    "params" : {},
+    "names" : ["starthost", "endhost", "count"],
+  });
+}
+
+LinkJumper.prototype.getDestinationHosts = function(revHost) {
+  let me = this;
+  reportError("jump list for : " + revHost);
+  reportError("jump table is " + J(me.jumpList));
+  return (revHost in me.jumpList) ? me.jumpList[revHost] : [];
 }
