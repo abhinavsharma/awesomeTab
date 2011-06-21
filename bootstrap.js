@@ -164,7 +164,9 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
   global.aboutURI = !SHOWNICE ? addon.getResourceURI("content/awesometab.html") : addon.getResourceURI("content/dial.html");
   global.central = new SiteCentral();
   global.jumper = new JumpTracker();
+  /*
   global.linkJumper = new LinkJumper();
+  */
   useActive = false;
 
   global.tagger = new POSTagger();
@@ -198,14 +200,7 @@ function shutdown(data, reason) {
 /**
  * Handle the add-on being installed
  */
-function install(data, reason) {
-  let dbName = "moz_jump_tracker";
-  let schema = "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-               "src LONGVARCHAR," + 
-               "dest LONGVARCHAR," +
-               "type INTEGER";
-
-}
+function install(data, reason) {}
 
 /**
  * Handle the add-on being uninstalled
