@@ -35,54 +35,323 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
-
-function Searcher(collectedTags, collectedHosts, excludedPlaces, utils) {
+function TabJumpSearch(utils) {
   let me = this;
   me.utils = utils;
-  me.central = new SiteCentral();
-  me.collectedHosts = collectedHosts;
-  me.numHosts = collectedHosts.length;
-  me.collectedTags = collectedTags;
-  me.excludedPlaces = excludedPlaces;
-  me.N = me.utils.getData(["id"], {"type":1}, "moz_bookmarks").length;
-  me.placesMap = me.getPlaces(me.collectedTags);
+}
+
+TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
+  reportError("searching for tab jumps");
+  let me = this;
+  if (collectedPlaces.length == 0) {
+    return [];
+  }
+  let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
+  let hostTable = me.getHostTable(revHost);
+  let results = [];
+  for (let otherHost in hostTable) {
+    spinQuery(PlacesUtils.history.DBConnection, {
+      "query" : "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title IS NOT NULL ORDER BY visit_count DESC LIMIT 1",
+      "params" : {
+        "otherHost" : otherHost,
+      },
+      "names" : ["id", "title", "url", "frecency"],
+    }).forEach(function ({id, title, url, frecency}) {
+      results.push({
+        "placeId" : id,
+        "title" : title,
+        "url": url,
+        "score" : hostTable[otherHost],
+        "frecency" : frecency,
+        "bookmarked": utils.isBookmarked(id),
+        "engine" : "tab-jump",
+        "hub": true, // TODO
+        "anno" : [],
+      });
+    });
+  }
+  return results;
+}
+
+TabJumpSearch.prototype.getHostTable = function(revHost) {
+  let me = this;
+  let hostTable = {};
+  spinQuery(PlacesUtils.history.DBConnection, {
+    "names": ["dst", "count"],
+    "query" : "SELECT * FROM moz_jump_tracker WHERE src = :revHost",
+    "params": {
+      "revHost" : revHost,
+    },
+  }).forEach(function ({dst, count}) {
+    hostTable[dst] = count;
+  });
+  return hostTable;
+}
+
+function LinkJumpSearch(utils) {
+  let me = this;
+  me.utils = utils;
+}
+
+LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
+  reportError("searcing for link jumps");
+  let me = this;
+  if (collectedPlaces.length == 0) {
+    return [];
+  }
+  let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
+  let hostJumpTable = me.getLinkJumpTableForHost(revHost);
+  reportError(J(hostJumpTable));
+  let results = [];
+  for (let i = 0; i < hostJumpTable.length; i++) {
+    let otherHost = hostJumpTable[i]["endHost"];
+    spinQuery(PlacesUtils.history.DBConnection, {
+      "names": ["id", "title", "url", "frecency"],
+      "query": "SELECT * FROM moz_places WHERE rev_host = :otherHost ORDER BY frecency DESC LIMIT 1",
+      "params": {"otherHost" : otherHost},
+    }).forEach(function({id, title, url, frecency}){
+      results.push({
+        "placeId" : id,
+        "title" : title,
+        "url": url,
+        "score" : hostJumpTable[i]["count"],
+        "frecency" : frecency,
+        "bookmarked": me.utils.isBookmarked(id),
+        "engine" : "link-jump",
+        "hub": true, //TODO
+        "anno" : [],
+      });
+    });
+  }
+  return results;
+}
+
+LinkJumpSearch.prototype.getLinkJumpTableForHost = function(revHost) {
+  let me = this;
+  let jumpTable = me.utils.getLinkJumpTable();
+  reportError(J(jumpTable));
+  let newTable = [];
+  for (let i = 0; i < jumpTable.length; i++) {
+    if (jumpTable[i]["starthost"] == revHost)
+      continue;
+    newTable.push({
+      "endHost" : jumpTable[i]["endhost"],
+      "count"   : jumpTable[i]["count"],
+    });
+  }
+  return newTable;
+}
+
+
+
+function FullSearch(utils) {
+  let me = this;
+  me.utils = utils;
+  me.idfMap = {};
+  me.tfMap = {};
+} 
+
+FullSearch.prototype.createIDFMap = function(tags) {
+  reportError("creating full search idf");
+  let me = this;
+  let idfMap = {};
+
+  /* find the number of documents, N */
+  reportError("Finding N");
+  reportError(PlacesUtils.history.DBConnection);
+  let N = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT COUNT(1) AS N FROM moz_places",
+    "params": {},
+    "names" : ["N"]
+  })[0]["N"];
+  reportError("N2");
+  for (let word in tags) {
+    if (word in me.idfMap) {
+      return;
+    }
+    let left = '% ' + word + '%';
+    let right = '%' + word + ' %';
+    let query = "SELECT COUNT(1) as n from moz_places " +
+      "WHERE LOWER(title) = :word OR title LIKE :left " +
+      "OR title LIKE :right";
+    let result = spinQuery(PlacesUtils.history.DBConnection, {
+      "query" : query,
+      "params" : {
+        "left" : left,
+        "right": right,
+        "word": word,
+      },
+      "names": ["n"]
+    });
+    let n = result[0]["n"];
+    me.idfMap[word] = Math.log((N - n + 0.5)/(n +0.5));
+  };
+}
+
+FullSearch.prototype.search = function(tags) {
+  reportError("searching all history");
+  let me = this;
+  me.createIDFMap(tags);
+
+  let wordSelections = [];
+  let wordConditions = [];
+  let rankSelection = [];
+  let names = ["id", "title", "url", "frecency", "visit_count", "score", "rev_host", "last_visit_date"];
+  let wordParams = {};
+  
+  let i = 0;
+  for (let word in tags) {
+    wordParams["left" + i] = '% ' + word + '%';
+    wordParams["right" + i] = '%' + word + ' %';
+    wordParams["exact" + i] = '%'+ word + '%';
+    wordParams["word" + i] = word;
+    wordParams["idf" + i] = me.idfMap[word];
+    wordSelections.push("(title LIKE :left" + i +") OR (title LIKE :right" + i + ") OR " + 
+      "(CASE LOWER(title) WHEN :word" + i + " THEN 1 ELSE 0 END) as word_" + i);
+    wordConditions.push("title LIKE :exact" + i);
+    rankSelection.push("(word_" + i + " * :idf" + i +")");
+    i++;
+  }
+  
+  let strictConditions =  null;
+  let timeRange = 30;
+  if (timeRange && timeRange != 0) {
+    let t = new Date().getTime() * 1000;
+    strictConditions = t + " - last_visit_date < (:timeRange * 24 * 60 * 60 * 1000 * 1000) AND last_visit_date IS NOT NULL"
+    wordParams['timeRange'] = timeRange;
+  }
+
+  let selections = wordSelections.join(' , ');
+  let conditions = wordConditions.join(' OR ');
+  let ranked = rankSelection.join(' + ') + " as score";
+  let order = ' ORDER BY score DESC, frecency DESC LIMIT 25';
+   
+  if (strictConditions) {
+    conditions = "(" + conditions + ") AND " + strictConditions;
+  }
+
+  let inner = "(SELECT id, title, url, frecency, rev_host, visit_count, last_visit_date," + selections + 
+    " FROM moz_places WHERE " + conditions + ")";
+  let query = "SELECT id, title, url, frecency, rev_host, visit_count,last_visit_date," + ranked + " FROM " + 
+    inner + order;
+  reportError(query);
+  reportError(J(wordParams));
+  reportError(J(names));
+  let results = [];
+  try {
+  var qR = spinQuery(PlacesUtils.history.DBConnection, {
+    "names": names,
+    "params": wordParams,
+    "query" : query,
+  });
+  } catch (ex) {reportError(ex);}
+  qR.forEach(function ({id, title, url, frecency, rev_host, score}) {
+    results.push({
+      "placeId" : id,
+      "title" : title,
+      "url": url,
+      "score" : score,
+      "frecency" : frecency,
+      "bookmarked": me.utils.isBookmarked(id),
+      "engine" : "all",
+      "hub": true, //TODO
+      "anno" : [],
+    });
+  });
 
 }
 
-Searcher.prototype.getPlaces = function(collectedTags) {
+function BookmarkSearch(utils) {
   let me = this;
-  let places = {};
+  me.utils = utils;
+  me.rowid = me.getRowID();
   me.idfMap = {};
-  for (let tag in collectedTags) {
-    let tagInfo = collectedTags[tag];
-    let p = tagInfo["hosts"].length / me.numHosts;
-    let placesWithTag = me.utils.getPlacesFromTag(tag);
-    let n = placesWithTag.length;
-    me.idfMap[tag] = Math.log((me.N - n + 0.5)/(n + 0.5));
-    placesWithTag.forEach(function(placeId) {
-      if (placeId in me.excludedPlaces) {
-        return;
-      }
-      if (!(placeId in places)) {
-        places[placeId] = {
-          "tags"  : [[tag, tagInfo["bookmarked"], p, me.idfMap[tag]]],
-          "isHub" : me.central.isHub(placeId),
-          "isBookmarked" : me.utils.isBookmarked(placeId),
-        };
-      } else {
-        let resDict = places[placeId];
-        reportError("resdict is " + resDict);
-        resDict.tags.push([tag, tagInfo["bookmarked"], p, me.idfMap[tag]]);
-        places[placeId] = resDict;
-      }
-    });
-  }
-  return places;
-};
+  me.tfMap = {};
+}
 
-Searcher.prototype.getResults = function() {
+BookmarkSearch.prototype.search = function(tags) {
+  reportError("searching bookmarks" + J(tags));
   let me = this;
-  reportError(JSON.stringify(me.placesMap));
-  return me.placesMap;
+  me.createIDFMap(tags);
+
+  let condition = [];
+  let i = 0;
+  let params = {};
+  for (let tag in tags) {
+    condition.push("title = :tag" + i);
+    params["tag" + i] = tag;
+    i++;
+  }
+
+  /* no tags to search for, or db does not have any record of tags (unexpected)*/
+  if (condition.length == 0 || !me.rowid) {
+    return [];
+  }
+  condition = condition.join(' OR ');
+  params["rowid"] = me.rowid;
+  let seenPlaces = {};
+  let query = "SELECT p.id as id, p.title as title,  p.url as url, " +
+    "p.frecency as frecency, p.rev_host as rev_host, " +
+    "GROUP_CONCAT(tag) as tags, COUNT(1) as matches FROM " +
+    "(SELECT t.title as tag, b.fk as place_id FROM " +
+    "(SELECT * FROM moz_bookmarks WHERE parent = :rowid AND (" + condition + ")) t JOIN " +
+    "(SELECT * FROM moz_bookmarks WHERE type=1) b ON b.parent=t.id) r JOIN " +
+    "moz_places p ON p.id=r.place_id GROUP BY p.id ORDER BY matches DESC, frecency DESC LIMIT 10";
+  let results = [];
+  reportError(query);
+  reportError(J(params));
+  spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : query,
+    "params" : params,
+    "names" : ["id", "tags", "url", "title", "frecency", "rev_host"],
+  }).forEach(function({id, tags, url, title, frecency, rev_host}) {
+    reportError("BOOOKMARK RESULT");
+    results.push({
+      "placeId" : id,
+      "title" : title,
+      "url": url,
+      "score" : tags.split(',').map(function(tag) {
+                  return me.idfMap[tag];
+                }).reduce(function (a,b) {
+                  return a + b;
+                }),
+      "frecency" : frecency,
+      "bookmarked": true,
+      "engine" : "bm",
+      "hub": true, //TODO
+      "anno" : tags,
+    });
+  });
+  return results;
+}
+
+BookmarkSearch.prototype.getRowID = function() {
+  let me = this;
+  return spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT rowid FROM moz_bookmarks_roots WHERE root_name = 'tags';",
+    "params" : {},
+    "names" : ["rowid"],
+  })[0]["rowid"];
+}
+
+BookmarkSearch.prototype.createIDFMap = function(tags) {
+  let me = this;
+  let N = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT COUNT(1) as N FROM moz_bookmarks WHERE parent = :rowid",
+    "params"  : {"rowid" : me.rowid},
+    "names" : ["N"],
+  })[0]["N"];
+  for (let tag in tags) {
+    let n = spinQuery(PlacesUtils.history.DBConnection, {
+      "query" : "SELECT COUNT(1) as n FROM " +
+        "(SELECT * FROM moz_bookmarks WHERE parent= :rowid AND title= :tag) s " +
+        "JOIN moz_bookmarks b on s.id = b.parent",
+      "params" : {
+        "rowid" : me.rowid,
+        "tag": tag,
+      },
+      "names" : ["n"]})[0]["n"];
+    me.idfMap[tag] = Math.log((N - n + 0.5)/(n + 0.5));
+    me.tfMap[tag] = 1;
+  }
 }

@@ -65,22 +65,37 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
     let suggestions = global.linkJumper.getDestinationHosts(revHost);
     reportError("SUGGESTED HOSTS" + J(suggestions));
   }
+
+
   */
 
-  let t2 = d.getTime();
+
   let collector = new TagCollector(currentPlaces,visiblePlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
+
+  let tags = {};
+  let searchResults = {
+    "all" : new FullSearch(utils).search(collectedTags),
+    "bm" : new BookmarkSearch(utils).search(collectedTags),
+    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
+    "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
+  };
+  reportError("SEARCH RESULTS : " + J(searchResults));
+
+  let t2 = d.getTime();
   let collectedHosts = collector.getHosts();
   let t3 = d.getTime();
+  /*
   let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults1 = searcher1.getResults();
+  */
   let t4 = d.getTime();
   let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults2 = searcher2.getResults();
   let t5 = d.getTime();
   reportError("showing results");
 
-  let mixer = new Mixer(searcher1.getResults(), searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
+  let mixer = new Mixer({}, searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
 
   let disp = new Display(mixer.getMixed(), doc, me.utils, annoID);
   //builder.show();

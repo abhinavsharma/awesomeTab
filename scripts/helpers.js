@@ -49,6 +49,7 @@ AwesomeTabUtils = function() {
            .getService(Ci.nsIIOService);
   me.GET_PLACES_FROM_TAG = {};
   me.GET_PLACE_ID_FROM_URL = {}
+  me.createLinkJumpTable();
 };
 
 AwesomeTabUtils.prototype.getCurrentWindow = function() {
@@ -218,4 +219,20 @@ AwesomeTabUtils.prototype.createDB = function(table, schema) {
                 .getService(Ci.mozIStorageService);
   let dbConn = storage.openDatabase(dbFile);
   dbConn.createTable(table, schema);
+}
+
+AwesomeTabUtils.prototype.createLinkJumpTable = function() {
+  let me = this;
+  let query = "SELECT p1.rev_host as starthost, p2.rev_host as endhost, COUNT(1) as count FROM (SELECT h.place_id as st, dst.place_id as end FROM (SELECT * FROM moz_historyvisits WHERE (visit_type = 1 OR visit_type = 5) AND from_visit != 0 ORDER BY id desc) dst JOIN moz_historyvisits h on dst.from_visit = h.id GROUP BY st, end) path JOIN moz_places p1 on path.st = p1.id join moz_places p2 on p2.id = path.end WHERE starthost != endhost GROUP BY starthost, endhost ORDER by count DESC";
+  me.linkJumpTable = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : query,
+    "params" : {},
+    "names" : ["starthost", "endhost", "count"],
+  });
+
+}
+
+AwesomeTabUtils.prototype.getLinkJumpTable = function() {
+  let me = this;
+  return me.linkJumpTable;
 }

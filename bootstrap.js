@@ -58,6 +58,7 @@ AWESOMETAB_SCRIPTS = [
   "mixer",
   "display",
   "jump",
+  "searcher",
 ];
 
 const global = this;
