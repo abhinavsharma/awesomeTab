@@ -182,7 +182,7 @@ function LinkJumper() {
 }
 
 LinkJumper.prototype.getJumpTable = function () {
-  let query = "SELECT p1.rev_host as starthost, p2.rev_host as endhost, COUNT(1) as count FROM (SELECT h.place_id as st, dst.place_id as end FROM (SELECT * FROM moz_historyvisits WHERE visit_type = 1 AND from_visit != 0 ORDER BY id desc) dst JOIN moz_historyvisits h on dst.from_visit = h.id GROUP BY st, end) path JOIN moz_places p1 on path.st = p1.id join moz_places p2 on p2.id = path.end WHERE starthost != endhost GROUP BY starthost, endhost ORDER by count DESC";
+  let query = "SELECT p1.rev_host as starthost, p2.rev_host as endhost, COUNT(1) as count FROM (SELECT h.place_id as st, dst.place_id as end FROM (SELECT * FROM moz_historyvisits WHERE (visit_type = 1 OR visit_type = 5) AND from_visit != 0 ORDER BY id desc) dst JOIN moz_historyvisits h on dst.from_visit = h.id GROUP BY st, end) path JOIN moz_places p1 on path.st = p1.id join moz_places p2 on p2.id = path.end WHERE starthost != endhost GROUP BY starthost, endhost ORDER by count DESC";
   return spinQuery(PlacesUtils.history.DBConnection, {
     "query" : query,
     "params" : {},
@@ -195,4 +195,67 @@ LinkJumper.prototype.getDestinationHosts = function(revHost) {
   reportError("jump list for : " + revHost);
   reportError("jump table is " + J(me.jumpList));
   return (revHost in me.jumpList) ? me.jumpList[revHost] : [];
+}
+
+function LinkJumpSuggest() {
+  let me = this;
+  let linkJumper = new LinkJumper();
+  me.jumpTable = linkJumper.getJumpTable();
+}
+
+function HostJumpSuggest() {
+  
+}
+
+HostJumpSuggest.prototype.getSimilarSites = function(url) {
+  let me = this;
+  let queryResult = spinQuery(PlacesUtils.history.DBConnection, {
+    "names" : ["rev_host"],
+    "params": {
+      "url" : url,
+    },
+    "query" : "SELECT rev_host FROM moz_places WHERE url = :url"
+  });
+  if (queryResult.length == 0) {
+    return [];
+  }
+  let revHost = queryResult[0]["rev_host"];
+  let hostTable = me.getHostTable(revHost);
+  let places = [];
+  for (let otherHost in hostTable) {
+    let qR = spinQuery(PlacesUtils.history.DBConnection, {
+      "query" : "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title IS NOT NULL ORDER BY visit_count DESC LIMIT 1",
+      "params" : {
+        "otherHost" : otherHost,
+      },
+      "names" : ["id", "title", "url", "frecency"],
+    }).forEach(function ({id, title, url, frecency}) {
+      places.push({
+        "id" : id,
+        "title" : title,
+        "score" : hostTable[otherHost],
+        "bookmarked": false,
+        "url": url,
+        "tags" : [],
+        "bmEngine" : 1,
+        "hub": false,
+      });
+    });
+  }
+  return places;
+}
+
+HostJumpSuggest.prototype.getHostTable = function(revHost) {
+  let me = this;
+  let hostTable = {};
+  spinQuery(PlacesUtils.history.DBConnection, {
+    "names": ["dst", "count"],
+    "query" : "SELECT * FROM moz_jump_tracker WHERE src = :revHost",
+    "params": {
+      "revHost" : revHost,
+    },
+  }).forEach(function ({dst, count}) {
+    hostTable[dst] = count;
+  });
+  return hostTable;
 }
