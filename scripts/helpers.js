@@ -57,10 +57,14 @@ AwesomeTabUtils = function() {
 
 AwesomeTabUtils.prototype.getFaviconData = function(url) {
   let me = this;
-  let wrappedURL = me.ios.newURI(url, null, null);
-  let faviconURL = me.faviconSvc.getFaviconForPage(wrappedURL);
-  let dataURL = me.faviconSvc.getFaviconDataAsDataURL(faviconURL);
-  return dataURL;
+  try {
+    let wrappedURL = me.ios.newURI(url, null, null);
+    let faviconURL = me.faviconSvc.getFaviconForPage(wrappedURL);
+    let dataURL = me.faviconSvc.getFaviconDataAsDataURL(faviconURL);
+    return dataURL;
+  } catch (ex) {
+    return null;
+  }
 }
 
 AwesomeTabUtils.prototype.getCurrentWindow = function() {

@@ -47,6 +47,7 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
     return [];
   }
   let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
+  reportError("TAB JUMP HOST: " + revHost);
   let hostTable = me.getHostTable(revHost);
   let results = [];
   let N = me.getTotalVisits();
@@ -124,6 +125,8 @@ LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
   if (collectedPlaces.length == 0) {
     return [];
   }
+  reportError(J(visiblePlaces));
+  reportError(J(collectedPlaces));
   let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
   reportError("LINK JUMP HOST: " + revHost);
   let hostJumpTable = me.getLinkJumpTableForHost(revHost);
@@ -158,7 +161,7 @@ LinkJumpSearch.prototype.getLinkJumpTableForHost = function(revHost) {
   for (let i = 0; i < jumpTable.length; i++) {
     if (jumpTable[i]["starthost"] != revHost)
       continue;
-    if (i >= 5)
+    if (i >= 10)
       break;
     reportError("PUSH: " + jumpTable[i]["starthost"]);
     newTable.push({
@@ -258,9 +261,9 @@ FullSearch.prototype.search = function(tags) {
     conditions = "(" + conditions + ") AND " + strictConditions;
   }
   */
-
+  let baseTable = "(SELECT * FROM moz_places WHERE title is NOT NULL and url is NOT NULL ORDER BY frecency DESC LIMIT 1000)"
   let inner = "(SELECT id, title, url, frecency, rev_host, visit_count, last_visit_date," + selections + 
-    " FROM moz_places WHERE " + conditions + ")";
+    " FROM " + baseTable + " WHERE " + conditions + ")";
   let query = "SELECT id, title, url, frecency, rev_host, visit_count,last_visit_date," + ranked + " FROM " + 
     inner + order;
   reportError(query);

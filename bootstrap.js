@@ -86,22 +86,35 @@ RE_FAIL_URL = new RegExp(/(\/post\/|\/article\/)|([\/#][0-9]+\/{0,1}$)|((\/*[0-9
 function handlePageLoad(e) {
   //reportError("Handling a page load");
   // global.thumbnailer.handlePageLoad(e);
-  /*
-  try {
-  let doc = e.originalTarget;
-  let win = doc.defaultView;
-  let url = doc.location.href;
-  global.jumper.addPageLoad(url);
-  } catch (ex) { reportError(ex) }
-  */
+  reportError(e.originalTarget.defaultView.location.href);
+
+  function isTopLevel(d) {
+    let gB = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
+    for (let i = 0; i < gB.browsers.length; i++) {
+      if (gB.browsers[i].contentDocument == d) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let doc = e.target;
+  if (isTopLevel(doc)) {
+    let url = e.target.location.href;
+    if (global.utils.isValidURL(url)) {
+      global.lastURL = url;
+    }
+    global.jumper.addTabChange(url);
+  }
 }
 
 function handleTabSelect(e) {
   let url = e.originalTarget.linkedBrowser.contentDocument.location.href;
   if (url && (/^http:\/\//).test(url)) {
-    reportError("TAB CHANGE: " + url + global.useActiveTab);
-    useActive = true;
-    global.lastURL = url;
+    reportError("TAB CHANGE: " + url);
+    if (global.utils.isValidURL(url)) {
+      global.lastURL = url;
+    }
     global.jumper.addTabChange(url);
   }
 }
@@ -168,7 +181,6 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
   /*
   global.linkJumper = new LinkJumper();
   */
-  useActive = false;
 
   global.tagger = new POSTagger();
   global.utils = new AwesomeTabUtils();
