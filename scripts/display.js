@@ -114,8 +114,13 @@ function Display(places, doc, utils, annoID) {
     let bmImg = doc.createElement('img');
     bmImg.style.height = '16px';
     bmImg.style.width = '16px';
-    bmImg.src = 'img/star.png';
+    bmImg.src = me.utils.getFaviconData(url);
     bmImg.style.visibility = place["bookmarked"] ? 'visible' : 'hidden';
+
+    let faviconImg = doc.createElement('img');
+    faviconImg.style.height = '16px';
+    faviconImg.style.width = '16px';
+    faviconImg.src = me.utils.getFaviconData(url);
 
     let link = doc.createElement('a');
     link.setAttribute('href', url);
@@ -126,6 +131,7 @@ function Display(places, doc, utils, annoID) {
 
     let row = doc.createElement('tr');
     let cell = doc.createElement('td');
+    cell.appendChild(faviconImg);
     cell.appendChild(link);
     cell.appendChild(doc.createElement('br'));
     cell.appendChild(urlText);

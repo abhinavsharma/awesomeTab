@@ -47,10 +47,20 @@ AwesomeTabUtils = function() {
                    .getService(Ci.nsINavBookmarksService);
   me.ios = Cc["@mozilla.org/network/io-service;1"]
            .getService(Ci.nsIIOService);
+  me.faviconSvc = Cc["@mozilla.org/browser/favicon-service;1"]
+                  .getService(Ci.nsIFaviconService);
   me.GET_PLACES_FROM_TAG = {};
   me.GET_PLACE_ID_FROM_URL = {}
   me.createLinkJumpTable();
 };
+
+AwesomeTabUtils.prototype.getFaviconData = function(url) {
+  let me = this;
+  let wrappedURL = me.ios.newURI(url, null, null);
+  let faviconURL = me.faviconSvc.getFaviconForPage(wrappedURL);
+  let dataURL = me.faviconSvc.getFaviconDataAsDataURL(faviconURL);
+  return dataURL;
+}
 
 AwesomeTabUtils.prototype.getCurrentWindow = function() {
   let me = this;
