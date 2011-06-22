@@ -78,7 +78,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   let searchResults = {
     "all" : new FullSearch(utils).search(collectedTags),
     "bm" : new BookmarkSearch(utils).search(collectedTags),
-    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
+//    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
     "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
   };
   let disp = new UserDisplay(searchResults, collectedHosts, doc, me.utils);
