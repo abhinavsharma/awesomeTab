@@ -80,7 +80,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
     "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
     "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
   };
-  reportError("SEARCH RESULTS : " + J(searchResults));
+  let disp = new UserDisplay(searchResults, doc, me.utils);
 
   let t2 = d.getTime();
   let collectedHosts = collector.getHosts();
@@ -88,7 +88,6 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   /*
   let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults1 = searcher1.getResults();
-  */
   let t4 = d.getTime();
   let searcher2 = new AllSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults2 = searcher2.getResults();
@@ -96,7 +95,6 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   reportError("showing results");
 
   let mixer = new Mixer({}, searcher2.getResults(), me.collectedTitles, collectedHosts ,me.utils);
-
   let disp = new Display(mixer.getMixed(), doc, me.utils, annoID);
   //builder.show();
   let t6 = d.getTime();
@@ -106,6 +104,7 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   reportError("bookmark searcher: " + (t4 - t3));
   reportError("all searcher: " + (t5 - t4));
   reportError("display: " + (t6 - t5));
+  */
   } catch (ex) { reportError(ex) }
 }
 
@@ -146,9 +145,11 @@ AwesomeTab.prototype.getVisiblePlaces = function() {
   me.collectedTitles = {};
   for (let i = 0; i < visibleTabs.length; i++) {
     let tab = visibleTabs[i];
+    /*
     if (tab.pinned) {
       continue;
     }
+    */
     let uri = gBrowser.getBrowserForTab(tab).currentURI.spec;
     // reportError(uri);
     let placesData = me.utils.getData(["id", "title", "url", "rev_host", "frecency"], {

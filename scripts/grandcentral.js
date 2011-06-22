@@ -40,7 +40,9 @@
 
 function SiteCentral() {
   let me = this;
+  /*
   me.utils = new AwesomeTabUtils();
+  */
   me.re_bad_substrings = new RegExp(/(\/post\/|\/article\/)/g);
   me.re_is_num = new RegExp(/\/[0-9]+\/{0,1}$/);
   me.re_bad_param = new RegExp(/^([a-z]|search)=/);

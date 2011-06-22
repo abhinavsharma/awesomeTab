@@ -52,6 +52,7 @@ AwesomeTabUtils = function() {
   me.GET_PLACES_FROM_TAG = {};
   me.GET_PLACE_ID_FROM_URL = {}
   me.createLinkJumpTable();
+  me.siteCentral = new SiteCentral();
 };
 
 AwesomeTabUtils.prototype.getFaviconData = function(url) {

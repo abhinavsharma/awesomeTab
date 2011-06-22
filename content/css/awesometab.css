@@ -39,8 +39,13 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
+.favicon {
+  padding-right: 10px;
+}
 
-
+ul {
+  list-style-type: none;
+}
 
 body {
   line-height: 1.6em;

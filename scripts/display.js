@@ -188,3 +188,35 @@ Display.prototype.addElement = function(title, url, image, type) {
 
   $(type).appendChild(thumbContainer);
 }
+
+function UserDisplay(searchResults, doc, utils) {
+  let me = this;
+  me.doc = doc;
+  me.utils = utils;
+  let $ = me.doc.getElementById;
+  for (let type in searchResults) {
+    for (let i in searchResults[type]) {
+      if (searchResults[type][i].hub) {
+        let elem = me.getElementForResult(searchResults[type][i]);
+        $('list-' + type).appendChild(elem);
+      }
+    }
+  }
+}
+
+UserDisplay.prototype.getElementForResult = function(result) {
+  let me = this;
+  let e = me.doc.createElement('li');
+
+  let f = me.doc.createElement('img');
+  f.style.height = '16px';
+  f.style.width = '16px';
+  f.src = me.utils.getFaviconData(result.url);
+  f.setAttribute("class", "favicon");
+  let a = me.doc.createElement('a');
+  a.setAttribute('href', result.url);
+  a.innerHTML = result.title;
+  e.appendChild(f);
+  e.appendChild(a);
+  return e;
+}

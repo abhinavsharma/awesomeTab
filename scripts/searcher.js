@@ -49,6 +49,7 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
   let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
   let hostTable = me.getHostTable(revHost);
   let results = [];
+  let N = me.getTotalVisits();
   for (let otherHost in hostTable) {
     spinQuery(PlacesUtils.history.DBConnection, {
       "query" : "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title IS NOT NULL ORDER BY visit_count DESC LIMIT 1",
@@ -57,6 +58,8 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
       },
       "names" : ["id", "title", "url", "frecency"],
     }).forEach(function ({id, title, url, frecency}) {
+      let n = me.getTotalVisitsToHost(otherHost);
+      n = n ? n : 1; // 1 should never happen
       results.push({
         "placeId" : id,
         "title" : title,
@@ -65,12 +68,34 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
         "frecency" : frecency,
         "bookmarked": utils.isBookmarked(id),
         "engine" : "tab-jump",
-        "hub": true, // TODO
+        "hub": utils.siteCentral.isURLHub(url), // TODO
         "anno" : [],
       });
     });
   }
-  return results;
+  return results.sort(function(a,b) {return b.score - a.score});
+}
+
+TabJumpSearch.prototype.getTotalVisitsToHost = function(otherHost) {
+  let me = this;
+  let qR = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT SUM(count) as n FROM moz_jump_tracker WHERE dst= :otherHost",
+    "params" : {
+      "otherHost" : otherHost,
+    },
+    "names" : ["n"],
+  });
+  return qR[0]["n"];
+}
+
+TabJumpSearch.prototype.getTotalVisits = function() {
+  let me = this;
+  let qR = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT SUM(count) as n FROM moz_jump_tracker",
+    "params" : {},
+    "names" : ["n"],
+  });
+  return qR[0]["n"];
 }
 
 TabJumpSearch.prototype.getHostTable = function(revHost) {
@@ -78,7 +103,7 @@ TabJumpSearch.prototype.getHostTable = function(revHost) {
   let hostTable = {};
   spinQuery(PlacesUtils.history.DBConnection, {
     "names": ["dst", "count"],
-    "query" : "SELECT * FROM moz_jump_tracker WHERE src = :revHost",
+    "query" : "SELECT * FROM moz_jump_tracker WHERE src = :revHost LIMIT 15",
     "params": {
       "revHost" : revHost,
     },
@@ -100,14 +125,14 @@ LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
     return [];
   }
   let revHost = visiblePlaces[collectedPlaces[0]]["rev_host"];
+  reportError("LINK JUMP HOST: " + revHost);
   let hostJumpTable = me.getLinkJumpTableForHost(revHost);
-  reportError(J(hostJumpTable));
   let results = [];
   for (let i = 0; i < hostJumpTable.length; i++) {
     let otherHost = hostJumpTable[i]["endHost"];
     spinQuery(PlacesUtils.history.DBConnection, {
       "names": ["id", "title", "url", "frecency"],
-      "query": "SELECT * FROM moz_places WHERE rev_host = :otherHost ORDER BY frecency DESC LIMIT 1",
+      "query": "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title is NOT NULL ORDER BY visit_count DESC LIMIT 1",
       "params": {"otherHost" : otherHost},
     }).forEach(function({id, title, url, frecency}){
       results.push({
@@ -129,11 +154,13 @@ LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
 LinkJumpSearch.prototype.getLinkJumpTableForHost = function(revHost) {
   let me = this;
   let jumpTable = me.utils.getLinkJumpTable();
-  reportError(J(jumpTable));
   let newTable = [];
   for (let i = 0; i < jumpTable.length; i++) {
-    if (jumpTable[i]["starthost"] == revHost)
+    if (jumpTable[i]["starthost"] != revHost)
       continue;
+    if (i >= 5)
+      break;
+    reportError("PUSH: " + jumpTable[i]["starthost"]);
     newTable.push({
       "endHost" : jumpTable[i]["endhost"],
       "count"   : jumpTable[i]["count"],
@@ -212,7 +239,7 @@ FullSearch.prototype.search = function(tags) {
     rankSelection.push("(word_" + i + " * :idf" + i +")");
     i++;
   }
-  
+  /*
   let strictConditions =  null;
   let timeRange = 30;
   if (timeRange && timeRange != 0) {
@@ -220,15 +247,17 @@ FullSearch.prototype.search = function(tags) {
     strictConditions = t + " - last_visit_date < (:timeRange * 24 * 60 * 60 * 1000 * 1000) AND last_visit_date IS NOT NULL"
     wordParams['timeRange'] = timeRange;
   }
+  */
 
   let selections = wordSelections.join(' , ');
   let conditions = wordConditions.join(' OR ');
   let ranked = rankSelection.join(' + ') + " as score";
-  let order = ' ORDER BY score DESC, frecency DESC LIMIT 25';
-   
+  let order = ' ORDER BY score DESC, frecency DESC LIMIT 10';
+   /*
   if (strictConditions) {
     conditions = "(" + conditions + ") AND " + strictConditions;
   }
+  */
 
   let inner = "(SELECT id, title, url, frecency, rev_host, visit_count, last_visit_date," + selections + 
     " FROM moz_places WHERE " + conditions + ")";
@@ -238,14 +267,11 @@ FullSearch.prototype.search = function(tags) {
   reportError(J(wordParams));
   reportError(J(names));
   let results = [];
-  try {
   var qR = spinQuery(PlacesUtils.history.DBConnection, {
     "names": names,
     "params": wordParams,
     "query" : query,
-  });
-  } catch (ex) {reportError(ex);}
-  qR.forEach(function ({id, title, url, frecency, rev_host, score}) {
+  }).forEach(function ({id, title, url, frecency, rev_host, score}) {
     results.push({
       "placeId" : id,
       "title" : title,
@@ -254,11 +280,11 @@ FullSearch.prototype.search = function(tags) {
       "frecency" : frecency,
       "bookmarked": me.utils.isBookmarked(id),
       "engine" : "all",
-      "hub": true, //TODO
+      "hub": me.utils.siteCentral.isURLHub(url),
       "anno" : [],
     });
   });
-
+  return results;
 }
 
 function BookmarkSearch(utils) {
