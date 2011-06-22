@@ -42,27 +42,33 @@
 </head>
 <body>
 
-<h1>Bookmarks</h1>
+<div id="wrapper-bm" style="display:none;">
+<h1>Similar Bookmarks</h1>
 <ul id="list-bm">
 </ul>
+</div>
 
-<h1>TabJump</h1>
+<div id="wrapper-tab-jump" style="display:none;">
+<h1>Frequently Browsed With</h1>
 <ul id="list-tab-jump">
 </ul>
+</div>
 
-<h1>LinkJump</h1>
+<div id="wrapper-link-jump" style="display:none;">
+<h1>Frequently Linked To</h1>
 <ul id="list-link-jump">
-
 </ul>
+</div>
 
-<h1>All</h1>
+<div id="wrapper-all" style="display:none;">
+<h1>Other Similar Content</h1>
 <ul id="list-all">
-
-
 </ul>
+</div>
 
 
 <div id="no-results" style="display:none;">No predictions can be made.</div>
+<!--
 <table id="bThT-table">
     <thead>
       <tr>
@@ -89,14 +95,15 @@
     <tbody id = "bThF">
     </tbody>
 </table>
-
+-->
 <div id="footer">
   <p>About</p>
 
   <p>The Predictive Newtab add-on is designed to help point you towards websites that may of of interest to you based on what you are currently browsing. These decisions are made entirely in your browser based on history and no personal data is sent to the web.</p>
-  <p>There are two tables - the first is meant to show places that are more likely to be "home" pages for websites while the second is all other retrieved relevant results. The former is called a "hub".</p>
 
-  <p>BM Engine: This indicates that the result was retrieved by matching on tagged bookmarks. In general, if you have well tagged bookmarks, these results are likely to be better.</p>
+  <p>We learn your tab switching behavior over time as you start using the addon so you should wait for a while (about a week of regular browsing) before its behavior stabilizes.</p>
+  
+  <p>Predictions come from one of four sources - your bookmarks, tabs you frequently switch between, links you follow from one site to another, and a text-based search through your Firefox history for similar results. This addon is a work in progress and likely to have bugs.</p>
 </div>
 
 </body>

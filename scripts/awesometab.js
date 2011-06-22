@@ -72,7 +72,8 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
 
   let collector = new TagCollector(currentPlaces,visiblePlaces, me.utils, tagger);
   let collectedTags = collector.getResults();
-
+  let collectedHosts = collector.getHosts();
+  reportError(J(collectedHosts));
   let tags = {};
   let searchResults = {
     "all" : new FullSearch(utils).search(collectedTags),
@@ -80,10 +81,9 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
     "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
     "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
   };
-  let disp = new UserDisplay(searchResults, doc, me.utils);
+  let disp = new UserDisplay(searchResults, collectedHosts, doc, me.utils);
 
   let t2 = d.getTime();
-  let collectedHosts = collector.getHosts();
   let t3 = d.getTime();
   /*
   let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
@@ -114,13 +114,15 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
  */
 AwesomeTab.prototype.getLastKVisiblePlaces = function(visiblePlaces, k) {
   let me = this;
+  reportError("visible places are: " + J(visiblePlaces));
   let condition = Object.keys(visiblePlaces).map(function(placeId) {
     return "place_id=" + placeId;
   }).join(" OR ");
   let sqlQuery = "SELECT place_id FROM moz_historyvisits WHERE " + condition +" GROUP BY "
-    +"place_id ORDER BY id DESC LIMIT " + k;
+    +"place_id ORDER BY id DESC";
   let params = {}
   let data =  me.utils.getDataQuery(sqlQuery, params, ["place_id"])
+  reportError(J(data));
   let lastKPlaces = [];
   reportError("ACTIVE" + global.lastURL);
   for (let i = 0; i < data.length; i++) {

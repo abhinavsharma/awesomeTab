@@ -189,18 +189,24 @@ Display.prototype.addElement = function(title, url, image, type) {
   $(type).appendChild(thumbContainer);
 }
 
-function UserDisplay(searchResults, doc, utils) {
+function UserDisplay(searchResults, collectedHosts, doc, utils) {
   let me = this;
   me.doc = doc;
   me.utils = utils;
   let $ = me.doc.getElementById;
+  let noResults = true;
   for (let type in searchResults) {
     for (let i in searchResults[type]) {
-      if (searchResults[type][i].hub) {
+      if (searchResults[type][i].hub && !(searchResults[type][i].revHost in collectedHosts)) {
+        noResults = false;
+        $('wrapper-' + type).style.display = 'block';
         let elem = me.getElementForResult(searchResults[type][i]);
         $('list-' + type).appendChild(elem);
       }
     }
+  }
+  if (noResults) {
+    $('no-results').style.display = 'block';
   }
 }
 

@@ -110,11 +110,10 @@ function handlePageLoad(e) {
 
 function handleTabSelect(e) {
   let url = e.originalTarget.linkedBrowser.contentDocument.location.href;
-  if (url && (/^http:\/\//).test(url)) {
+  reportError(url);
+  if (global.utils.isValidURL(url)) {
     reportError("TAB CHANGE: " + url);
-    if (global.utils.isValidURL(url)) {
-      global.lastURL = url;
-    }
+    global.lastURL = url;
     global.jumper.addTabChange(url);
   }
 }
@@ -123,10 +122,9 @@ function handleTabSelect(e) {
  * Shift the window's main browser content down and right a bit
  */
 function setupListener(window) {
-
-  window.addEventListener("DOMContentLoaded", handlePageLoad, true);
   let gB = Services.wm.getMostRecentWindow("navigator:browser").gBrowser;
   //gB.tabContainer.addEventListener("TabSelect", handleTabSelect, false)
+  listen(window, window, "DOMContentLoaded", handlePageLoad);
   listen(window, gB.tabContainer, "TabSelect", handleTabSelect);
 
   function change(obj, prop, val) {

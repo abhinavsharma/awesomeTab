@@ -57,8 +57,8 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
       "params" : {
         "otherHost" : otherHost,
       },
-      "names" : ["id", "title", "url", "frecency"],
-    }).forEach(function ({id, title, url, frecency}) {
+      "names" : ["id", "title", "url", "frecency", "rev_host"],
+    }).forEach(function ({id, title, url, frecency, rev_host}) {
       let n = me.getTotalVisitsToHost(otherHost);
       n = n ? n : 1; // 1 should never happen
       results.push({
@@ -71,6 +71,7 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
         "engine" : "tab-jump",
         "hub": utils.siteCentral.isURLHub(url), // TODO
         "anno" : [],
+        "revHost" : rev_host,
       });
     });
   }
@@ -134,10 +135,10 @@ LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
   for (let i = 0; i < hostJumpTable.length; i++) {
     let otherHost = hostJumpTable[i]["endHost"];
     spinQuery(PlacesUtils.history.DBConnection, {
-      "names": ["id", "title", "url", "frecency"],
+      "names": ["id", "title", "url", "frecency", "rev_host"],
       "query": "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title is NOT NULL ORDER BY visit_count DESC LIMIT 1",
       "params": {"otherHost" : otherHost},
-    }).forEach(function({id, title, url, frecency}){
+    }).forEach(function({id, title, url, frecency, rev_host}){
       results.push({
         "placeId" : id,
         "title" : title,
@@ -148,6 +149,7 @@ LinkJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
         "engine" : "link-jump",
         "hub": true, //TODO
         "anno" : [],
+        "revHost" : rev_host,
       });
     });
   }
@@ -285,6 +287,7 @@ FullSearch.prototype.search = function(tags) {
       "engine" : "all",
       "hub": me.utils.siteCentral.isURLHub(url),
       "anno" : [],
+      "revHost" : rev_host,
     });
   });
   return results;
@@ -347,8 +350,9 @@ BookmarkSearch.prototype.search = function(tags) {
       "frecency" : frecency,
       "bookmarked": true,
       "engine" : "bm",
-      "hub": true, //TODO
+      "hub": me.utils.siteCentral.isURLHub(url),
       "anno" : tags,
+      "revHost" : rev_host,
     });
   });
   return results;
