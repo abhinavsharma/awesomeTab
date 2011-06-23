@@ -221,7 +221,7 @@ UserDisplay.prototype.getElementForResult = function(result) {
   f.setAttribute("class", "favicon");
   let a = me.doc.createElement('a');
   a.setAttribute('href', result.url);
-  a.innerHTML = result.title;
+  a.innerHTML = result.title.length < 30 ? result.title : result.title.slice(0, 25) + " ...";
   e.appendChild(f);
   e.appendChild(a);
   return e;
