@@ -199,7 +199,7 @@ function UserDisplay(searchResults, collectedHosts, doc, utils) {
     for (let i in searchResults[type]) {
       if (searchResults[type][i].hub && !(searchResults[type][i].revHost in collectedHosts)) {
         noResults = false;
-        $('wrapper-' + type).style.display = 'block';
+        $('wrapper-' + type).style.visibility = 'visible';
         let elem = me.getElementForResult(searchResults[type][i]);
         $('list-' + type).appendChild(elem);
       }
