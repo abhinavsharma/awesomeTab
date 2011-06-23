@@ -50,7 +50,7 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
   reportError("TAB JUMP HOST: " + revHost);
   let hostTable = me.getHostTable(revHost);
   let results = [];
-  let N = me.getTotalVisits();
+  let N = me.getTotalVisitsToAllHosts();
   for (let otherHost in hostTable) {
     spinQuery(PlacesUtils.history.DBConnection, {
       "query" : "SELECT * FROM moz_places WHERE rev_host = :otherHost AND title IS NOT NULL ORDER BY visit_count DESC LIMIT 1",
@@ -61,11 +61,12 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
     }).forEach(function ({id, title, url, frecency, rev_host}) {
       let n = me.getTotalVisitsToHost(otherHost);
       n = n ? n : 1; // 1 should never happen
+      let f = hostTable[otherHost];
       results.push({
         "placeId" : id,
         "title" : title,
         "url": url,
-        "score" : hostTable[otherHost],
+        "score" : (3*f/(2+f)) * Math.log((N-n+0.5)/(n+0.5)),
         "frecency" : frecency,
         "bookmarked": utils.isBookmarked(id),
         "engine" : "tab-jump",
@@ -76,6 +77,17 @@ TabJumpSearch.prototype.search = function(collectedPlaces, visiblePlaces) {
     });
   }
   return results.sort(function(a,b) {return b.score - a.score});
+}
+
+TabJumpSearch.prototype.getTotalVisitsToAllHosts = function() {
+  let me = this;
+  let qR = spinQuery(PlacesUtils.history.DBConnection, {
+    "query" : "SELECT SUM(count) as n FROM moz_jump_tracker;",
+    "params" : {},
+    "names" : ["n"],
+  });
+  return qR[0]["n"];
+
 }
 
 TabJumpSearch.prototype.getTotalVisitsToHost = function(otherHost) {
