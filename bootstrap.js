@@ -62,7 +62,7 @@ AWESOMETAB_SCRIPTS = [
 ];
 
 const global = this;
-const DEBUG = false;
+const DEBUG = true;
 const SHOWNICE = false;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
@@ -146,7 +146,14 @@ function setupListener(window) {
           tab.linkedBrowser.removeEventListener("load", arguments.callee, true);
           Services.wm.getMostRecentWindow("navigator:browser").gURLBar.value = "";
           let doc = tab.linkedBrowser.contentDocument;
-          let dashboard = new AwesomeTab(doc, global.utils, global.central, global.tagger, 0) //global.thumbnailer.getAnnoID());
+          try{
+          //let dashboard = new AwesomeTab(global.utils, global.central, global.tagger, 0) //global.thumbnailer.getAnnoID());
+          global.awesomeTab.updateResults();
+          let results = global.awesomeTab.getResults();
+          global.awesomeTab.display(results, doc);
+          } catch (ex) {
+          reportError(ex);
+          }
         }, true);
 
       }
@@ -182,7 +189,8 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
 
   global.tagger = new POSTagger();
   global.utils = new AwesomeTabUtils();
-
+  
+  global.awesomeTab = new AwesomeTab(global.utils, global.central, global.tagger, 0);
   let dbName = "moz_jump_tracker";
   let schema = "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                "src LONGVARCHAR," + 

@@ -47,15 +47,14 @@
  * @param {Object} central a GrandCentral instance
  * @param {Object} tagger an instance of the POSTagger
  */
-function AwesomeTab(doc, utils, central, tagger, annoID) {
+function AwesomeTab(utils, central, tagger, annoID, resultMap) {
   let me = this;
   //me.tester = new Tester();
   try {
   me.utils = utils;
   me.pos = new POSTagger();
+  me.resultMap = {};
   reportError("getting visible places");
-  let d = new Date();
-  let t1 = d.getTime();
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
   
@@ -69,22 +68,6 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
 
   */
 
-
-  let collector = new TagCollector(currentPlaces,visiblePlaces, me.utils, tagger);
-  let collectedTags = collector.getResults();
-  let collectedHosts = collector.getHosts();
-  reportError(J(collectedHosts));
-  let tags = {};
-  let searchResults = {
-    "all" : new FullSearch(utils).search(collectedTags),
-    "bm" : new BookmarkSearch(utils).search(collectedTags),
-//    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
-    "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
-  };
-  let disp = new UserDisplay(searchResults, collectedHosts, doc, me.utils);
-
-  let t2 = d.getTime();
-  let t3 = d.getTime();
   /*
   let searcher1 = new BookmarkSearch(collectedTags, collectedHosts, visiblePlaces, me.utils, central);
   let rankedResults1 = searcher1.getResults();
@@ -106,6 +89,42 @@ function AwesomeTab(doc, utils, central, tagger, annoID) {
   reportError("display: " + (t6 - t5));
   */
   } catch (ex) { reportError(ex) }
+}
+
+AwesomeTab.prototype.updateResults = function() {
+  let me = this;
+  let visiblePlaces = me.getVisiblePlaces();
+  let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
+  
+  let collector = new TagCollector(currentPlaces,visiblePlaces, me.utils, tagger);
+  let collectedTags = collector.getResults();
+  me.collectedHosts = collector.getHosts();
+  let searchResults = {
+    "all" : new FullSearch(utils).search(collectedTags),
+    "bm" : new BookmarkSearch(utils).search(collectedTags),
+//    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
+    "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
+  };
+  let key = currentPlaces;
+  me.resultMap[key] = searchResults;
+  reportError("adding  : "  + key);
+}
+
+AwesomeTab.prototype.getResults = function() {
+  let me = this;
+  let visiblePlaces = me.getVisiblePlaces();
+  let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
+  let key = currentPlaces;
+  reportError(J(me.resultMap))
+  reportError("getting : " + key);
+  let results =  me.resultMap[key];
+  reportError(J(results));
+  return results;
+}
+
+AwesomeTab.prototype.display = function(results, doc) {
+  let me = this;
+  let disp = new UserDisplay(results, me.collectedHosts, doc, me.utils);
 }
 
 
