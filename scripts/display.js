@@ -64,7 +64,6 @@ function UserDisplay(searchResults, collectedHosts, doc, utils) {
 UserDisplay.prototype.getElementForResult = function(result) {
   let me = this;
   let e = me.doc.createElement('li');
-  function escapeHTML(str) str.replace(/[&"<>]/g, function (m) "&" + ({ "&": "amp", '"': "quot", "<": "lt", ">": "gt" })[m] + ";");
   let f = me.doc.createElement('img');
   f.style.height = '16px';
   f.style.width = '16px';
