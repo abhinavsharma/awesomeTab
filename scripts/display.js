@@ -48,6 +48,9 @@ function UserDisplay(searchResults, collectedHosts, doc, utils) {
       if (searchResults[type][i].hub && !(searchResults[type][i].revHost in collectedHosts)) {
         noResults = false;
         $('wrapper-' + type).style.visibility = 'visible';
+        if (!searchResults[type][i]["title"]) {
+          continue;
+        }
         let elem = me.getElementForResult(searchResults[type][i]);
         $('list-' + type).appendChild(elem);
       }
@@ -69,7 +72,7 @@ UserDisplay.prototype.getElementForResult = function(result) {
   f.setAttribute("class", "favicon");
   let a = me.doc.createElement('a');
   a.setAttribute('href', result.url);
-  a.innerHTML = result.title.length < 30 ? escapeHTML(result.title) : escapeHTML(result.title.slice(0, 25) + " ...");
+  a.textContent = result.title.length < 30 ? result.title : result.title.slice(0, 25) + " ...";
   e.appendChild(f);
   e.appendChild(a);
   return e;

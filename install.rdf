@@ -5,10 +5,9 @@
     <creator>Mozilla Labs</creator>
     <description>Show predictions of where to go on new tabs</description>
     <homepageURL>https://mozillalabs.com/prospector</homepageURL>
-    <iconURL>http://mozillalabs.com/wp-content/themes/labs_project/img/prospector-header.png</iconURL>
     <id>predictive.newtab@prospector.labs.mozilla</id>
     <name>Mozilla Labs: Prospector - Predictive Newtab</name>
-    <version>7</version>
+    <version>8</version>
 
     <bootstrap>true</bootstrap>
     <type>2</type>
