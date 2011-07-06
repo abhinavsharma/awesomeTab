@@ -105,7 +105,7 @@ AwesomeTab.prototype.updateResults = function() {
 //    "link-jump": new LinkJumpSearch(utils).search(currentPlaces, visiblePlaces),
     "tab-jump" : new TabJumpSearch(utils).search(currentPlaces, visiblePlaces),
   };
-  let key = currentPlaces;
+  let key = currentPlaces[0];
   me.resultMap[key] = searchResults;
   reportError("adding  : "  + key);
 }
@@ -114,7 +114,7 @@ AwesomeTab.prototype.getResults = function() {
   let me = this;
   let visiblePlaces = me.getVisiblePlaces();
   let currentPlaces = me.getLastKVisiblePlaces(visiblePlaces, 3);
-  let key = currentPlaces;
+  let key = currentPlaces[0];
   reportError(J(me.resultMap))
   reportError("getting : " + key);
   let results =  me.resultMap[key];
