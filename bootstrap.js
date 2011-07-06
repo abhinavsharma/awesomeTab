@@ -47,7 +47,6 @@ Cu.import("resource://gre/modules/AddonManager.jsm");
 AWESOMETAB_SCRIPTS = [
   "utils",
   "awesometab",
-  "thumbnail",
   "helpers",
   "collector",
   "grandcentral",
