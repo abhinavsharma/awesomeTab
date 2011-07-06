@@ -1,5 +1,4 @@
-POSTAGGER_LEXICON = {
-    "Ranavan": [
+{   "Ranavan": [
         "NNP"
     ], 
     "fawn": [
@@ -297818,7 +297817,7 @@ POSTAGGER_LEXICON = {
     "jawbone": [
         "NN"
     ]
-};
+}
 
 
 

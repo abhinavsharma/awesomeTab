@@ -52,15 +52,16 @@ AWESOMETAB_SCRIPTS = [
   "grandcentral",
   "stop",
   "pos",
-  "pos_data",
-  "mixer",
-  "display",
-  "jump",
+  "display", "jump",
   "searcher",
 ];
 
+AWESOMETAB_DATA = [
+  "posdata.json",
+]
+
 const global = this;
-const DEBUG = true;
+const DEBUG = false;
 const SHOWNICE = false;
 const TESTER = true;
 const reportError = DEBUG ? Cu.reportError : function() {};
@@ -176,6 +177,19 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
   PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase);
 
   /* import scripts */
+  AWESOMETAB_DATA.forEach(function(fileName) {
+    try{
+    let fileURI = addon.getResourceURI("scripts/" + fileName);
+    let win = Services.wm.getMostRecentWindow("navigator:browser");
+    let XHR = win.XMLHttpRequest;
+    let xhr = new XHR();
+    xhr.overrideMimeType("application/json");
+    reportError(fileURI.spec);
+    xhr.open('GET', fileURI.spec, false);
+    xhr.send(null);
+    POSTAGGER_LEXICON = JSON.parse(xhr.responseText);
+    } catch (ex) { reportError(ex) }
+  });
   AWESOMETAB_SCRIPTS.forEach(function(fileName) {
     let fileURI = addon.getResourceURI("scripts/" + fileName + ".js");
     Services.scriptloader.loadSubScript(fileURI.spec, global);
@@ -186,7 +200,7 @@ function startup({id}) AddonManager.getAddonByID(id, function(addon) {
   /*
   global.linkJumper = new LinkJumper();
   */
-
+  reportError(POSTAGGER_LEXICON);
   global.tagger = new POSTagger(POSTAGGER_LEXICON);
   global.utils = new AwesomeTabUtils();
   
